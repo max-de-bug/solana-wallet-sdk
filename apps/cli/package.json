@@ -1,0 +1,22 @@
+{
+  "name": "@solana-wallet-sdk/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CLI demo and testing tool for the Solana Unified Hardware Wallet SDK",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@solana-wallet-sdk/core": "workspace:*",
+    "@solana-wallet-sdk/ledger-adapter": "workspace:*",
+    "@solana-wallet-sdk/trezor-adapter": "workspace:*",
+    "@solana-wallet-sdk/keystone-adapter": "workspace:*",
+    "@solana-wallet-sdk/safepal-adapter": "workspace:*",
+    "@solana/web3.js": "^1.89.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

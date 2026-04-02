@@ -1,0 +1,34 @@
+{
+  "name": "@solana-wallet-sdk/ledger-adapter",
+  "version": "0.1.0",
+  "description": "Ledger hardware wallet adapter for the Solana Unified Wallet SDK",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@solana-wallet-sdk/core": "workspace:*",
+    "@solana/web3.js": "^1.89.0",
+    "@ledgerhq/hw-transport": "^6.30.0",
+    "@ledgerhq/hw-app-solana": "^7.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-wallet-sdk/solana-wallet-sdk",
+    "directory": "packages/ledger-adapter"
+  },
+  "keywords": ["solana", "ledger", "hardware-wallet", "adapter"]
+}

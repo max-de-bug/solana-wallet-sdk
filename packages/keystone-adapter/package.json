@@ -1,0 +1,33 @@
+{
+  "name": "@solana-wallet-sdk/keystone-adapter",
+  "version": "0.1.0",
+  "description": "Keystone air-gapped hardware wallet adapter for the Solana Unified Wallet SDK",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@solana-wallet-sdk/core": "workspace:*",
+    "@solana/web3.js": "^1.89.0",
+    "@keystonehq/keystone-sdk": "^0.5.0",
+    "@ngraveio/bc-ur": "^1.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/solana-wallet-sdk/solana-wallet-sdk",
+    "directory": "packages/keystone-adapter"
+  },
+  "keywords": ["solana", "keystone", "hardware-wallet", "qr", "air-gapped", "adapter"]
+}
