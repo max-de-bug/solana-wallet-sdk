@@ -15,48 +15,7 @@ An open-source, modular adapter system that lets React Native Solana dApps conne
 
 This project is a **pnpm monorepo** powered by **Turborepo**. It uses the **Adapter Pattern** to abstract hardware-specific communication behind a common `HardwareWalletAdapter` interface.
 
-```mermaid
-graph TB
-    subgraph "Your React Native App"
-        A[useHardwareWallet Hook] --> B[useQRInteraction Hook]
-    end
-
-    subgraph "packages/react-native"
-        A --> C{Adapter Selection}
-    end
-
-    subgraph "packages/*-adapter"
-        C --> D[LedgerAdapter]
-        C --> E[TrezorAdapter]
-        C --> F[KeystoneAdapter]
-        C --> G[SafePalAdapter]
-    end
-
-    subgraph "packages/core"
-        H[HardwareWalletAdapter Interface]
-        I[QRInteractionProvider Interface]
-        J[TransportMethod Enum]
-        K[Error Classes]
-    end
-
-    D --> H
-    E --> H
-    F --> H
-    G --> H
-    F --> I
-    G --> I
-    B --> I
-
-    subgraph "External Libraries"
-        D --> L["@ledgerhq/hw-app-solana"]
-        E --> M["@trezor/connect"]
-        F --> N["@keystonehq/keystone-sdk"]
-    end
-
-    style A fill:#9945FF,color:#fff
-    style H fill:#14F195,color:#000
-    style I fill:#14F195,color:#000
-```
+![Package Architecture](./architecture.svg)
 
 ### Package Structure
 
