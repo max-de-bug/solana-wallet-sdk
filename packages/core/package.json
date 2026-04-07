@@ -1,14 +1,24 @@
 {
   "name": "@solana-wallet-sdk/core",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Core types and interfaces for the Solana Unified Hardware Wallet SDK",
   "license": "Apache-2.0",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint src/",
     "test": "vitest run"
   },
@@ -16,6 +26,7 @@
     "@solana/web3.js": "^1.89.0"
   },
   "devDependencies": {
+    "tsup": "^8.5.1",
     "typescript": "^5.0.0",
     "vitest": "^1.6.0"
   },
@@ -24,8 +35,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/solana-wallet-sdk/solana-wallet-sdk",
+    "url": "git+https://github.com/max-de-bug/solana-wallet-sdk.git",
     "directory": "packages/core"
   },
-  "keywords": ["solana", "hardware-wallet", "ledger", "trezor", "keystone", "safepal"]
+  "keywords": [
+    "solana",
+    "hardware-wallet",
+    "ledger",
+    "trezor",
+    "keystone",
+    "safepal"
+  ],
+  "homepage": "https://github.com/max-de-bug/solana-wallet-sdk/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/max-de-bug/solana-wallet-sdk/issues"
+  }
 }

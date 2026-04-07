@@ -1,11 +1,13 @@
 {
   "name": "@solana-wallet-sdk/safepal-adapter",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "SafePal hardware wallet adapter for the Solana Unified Wallet SDK (QR + Bluetooth)",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -24,8 +26,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/solana-wallet-sdk/solana-wallet-sdk",
+    "url": "git+https://github.com/max-de-bug/solana-wallet-sdk.git",
     "directory": "packages/safepal-adapter"
   },
-  "keywords": ["solana", "safepal", "hardware-wallet", "qr", "bluetooth", "adapter"]
+  "keywords": [
+    "solana",
+    "safepal",
+    "hardware-wallet",
+    "qr",
+    "bluetooth",
+    "adapter"
+  ],
+  "homepage": "https://github.com/max-de-bug/solana-wallet-sdk/tree/main/packages/safepal-adapter#readme",
+  "bugs": {
+    "url": "https://github.com/max-de-bug/solana-wallet-sdk/issues"
+  }
 }

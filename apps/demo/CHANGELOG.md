@@ -1,0 +1,17 @@
+# @solana-wallet-sdk/demo
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @solana-wallet-sdk/core@0.2.1
+  - @solana-wallet-sdk/safepal-adapter@0.2.1
+
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @solana-wallet-sdk/core@0.2.0
+  - @solana-wallet-sdk/safepal-adapter@0.2.0

@@ -9,9 +9,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.30.0",
     "@vitest/coverage-v8": "^1.6.0",
     "prettier": "latest",
     "rpc-websockets": "^7.11.2",
@@ -27,5 +30,10 @@
     "overrides": {
       "rpc-websockets": "7.5.0"
     }
+  },
+  "dependencies": {
+    "expo": "~50.0.17",
+    "react": "18.2.0",
+    "react-native": "0.73.6"
   }
 }

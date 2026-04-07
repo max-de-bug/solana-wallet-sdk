@@ -11,9 +11,15 @@ import {
 
 // ─── CLI QR Provider (mock for CLI environment) ─────────────────────────────
 
+/** A deterministic dummy Solana public key for simulation purposes. */
+const DUMMY_PUBKEY = '11111111111111111111111111111111';
+
 /**
  * In a CLI environment, QR interaction is simulated.
  * In production, you'd use a terminal QR renderer + camera input.
+ *
+ * The mock returns correctly-shaped responses for each adapter's protocol
+ * so the demo can run end-to-end without crashing on JSON parse errors.
  */
 const cliQRProvider: QRInteractionProvider = {
   displayQR: async (data: string, type: string) => {
@@ -24,7 +30,16 @@ const cliQRProvider: QRInteractionProvider = {
   scanQR: async (expectedTypes: string[]) => {
     console.log(`\n📷 [QR Scan] Waiting for types: ${expectedTypes.join(', ')}`);
     console.log('   (In a real app, this would activate a camera scanner)');
-    return '{}'; // Simulated empty response
+
+    // Return protocol-appropriate mock responses
+    if (expectedTypes.includes('crypto-multi-accounts')) {
+      // Keystone sync: the SDK will try to parse this as a UR —
+      // since we can't generate a valid UR without the real device,
+      // this will still fail gracefully, but won't crash with an NPE.
+      return '';
+    }
+    // SafePal / generic: return a valid-shaped JSON response
+    return JSON.stringify({ status: 'ok', result: DUMMY_PUBKEY });
   },
 };
 
