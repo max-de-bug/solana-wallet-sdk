@@ -4,9 +4,9 @@ import {
   HardwareWalletConnectionError,
   HardwareWalletSignError,
   HardwareWalletError,
-} from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
-import TrezorConnect, { type SolanaSignedTransaction } from '@trezor/connect';
+} from "@solana-wallet-sdk/core";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import TrezorConnect, { type SolanaSignedTransaction } from "@trezor/connect";
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 
@@ -18,14 +18,14 @@ export interface TrezorAdapterConfig {
 }
 
 const DEFAULT_CONFIG: TrezorAdapterConfig = {
-  email: 'developer@example.com',
-  appUrl: 'https://example.com',
+  email: "developer@example.com",
+  appUrl: "https://example.com",
 };
 
 // ─── Trezor Adapter ─────────────────────────────────────────────────────────
 
 export class TrezorAdapter implements HardwareWalletAdapter {
-  public readonly name = 'Trezor';
+  public readonly name = "Trezor";
   public readonly transportMethods = [TransportMethod.USB] as const;
 
   private readonly config: TrezorAdapterConfig;
@@ -38,7 +38,7 @@ export class TrezorAdapter implements HardwareWalletAdapter {
   public async connect(method: TransportMethod): Promise<void> {
     if (method !== TransportMethod.USB) {
       throw new HardwareWalletConnectionError(
-        `Transport method "${method}" is not supported by Trezor. Only USB is supported.`
+        `Transport method "${method}" is not supported by Trezor. Only USB is supported.`,
       );
     }
 
@@ -56,8 +56,8 @@ export class TrezorAdapter implements HardwareWalletAdapter {
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletConnectionError(
         `Trezor initialization failed: ${message}. ` +
-        'Ensure Trezor Bridge is running and the device is connected.',
-        e
+          "Ensure Trezor Bridge is running and the device is connected.",
+        e,
       );
     }
   }
@@ -79,16 +79,13 @@ export class TrezorAdapter implements HardwareWalletAdapter {
       return new PublicKey(result.payload.address);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
-      throw new HardwareWalletError(
-        `Trezor derivation failed: ${message}`,
-        e
-      );
+      throw new HardwareWalletError(`Trezor derivation failed: ${message}`, e);
     }
   }
 
   public async signTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
-    path: string
+    path: string,
   ): Promise<T> {
     this.assertInitialized();
     try {
@@ -99,7 +96,7 @@ export class TrezorAdapter implements HardwareWalletAdapter {
 
       const result = await TrezorConnect.solanaSignTransaction({
         path,
-        serializedTx: Buffer.from(messageBytes).toString('hex'),
+        serializedTx: Buffer.from(messageBytes).toString("hex"),
       });
 
       if (!result.success) {
@@ -108,31 +105,28 @@ export class TrezorAdapter implements HardwareWalletAdapter {
 
       const payload = result.payload as SolanaSignedTransaction;
       const pubkey = await this.deriveAccount(path);
-      transaction.addSignature(
-        pubkey,
-        Buffer.from(payload.signature, 'hex')
-      );
+      transaction.addSignature(pubkey, Buffer.from(payload.signature, "hex"));
 
       return transaction;
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `Trezor transaction signing failed: ${message}`,
-        e
+        e,
       );
     }
   }
 
   public async signMessage(
     message: Uint8Array,
-    path: string
+    path: string,
   ): Promise<Uint8Array> {
     this.assertInitialized();
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await (TrezorConnect as any).solanaSignMessage({
         path,
-        message: Buffer.from(message).toString('hex'),
+        message: Buffer.from(message).toString("hex"),
       });
 
       if (!result.success) {
@@ -140,12 +134,12 @@ export class TrezorAdapter implements HardwareWalletAdapter {
       }
 
       const payload = result.payload as { signature: string };
-      return new Uint8Array(Buffer.from(payload.signature, 'hex'));
+      return new Uint8Array(Buffer.from(payload.signature, "hex"));
     } catch (e: unknown) {
       const message_ = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `Trezor message signing failed: ${message_}`,
-        e
+        e,
       );
     }
   }
@@ -155,7 +149,7 @@ export class TrezorAdapter implements HardwareWalletAdapter {
   private assertInitialized(): void {
     if (!this.initialized) {
       throw new HardwareWalletConnectionError(
-        'Trezor is not initialized. Call connect() first.'
+        "Trezor is not initialized. Call connect() first.",
       );
     }
   }

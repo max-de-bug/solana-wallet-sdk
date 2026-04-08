@@ -1,12 +1,12 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from "react";
 import {
   HardwareWalletAdapter,
   TransportMethod,
   HardwareWalletConnectionError,
   QRInteractionProvider,
   DEFAULT_DERIVATION_PATH,
-} from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+} from "@solana-wallet-sdk/core";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 // ─── Re-exports for convenience ─────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ export {
   DEFAULT_DERIVATION_PATH,
   type HardwareWalletAdapter,
   type QRInteractionProvider,
-} from '@solana-wallet-sdk/core';
+} from "@solana-wallet-sdk/core";
 
 // ─── Adapter Capabilities ─────────────────────────────────────────────────
 
@@ -35,13 +35,15 @@ export interface AdapterCapabilities {
  * connected wallet supports.
  */
 export function getAdapterCapabilities(
-  adapter: HardwareWalletAdapter
+  adapter: HardwareWalletAdapter,
 ): AdapterCapabilities {
   return {
     name: adapter.name,
     transportMethods: adapter.transportMethods,
     supportsUSB: adapter.transportMethods.includes(TransportMethod.USB),
-    supportsBluetooth: adapter.transportMethods.includes(TransportMethod.BLUETOOTH),
+    supportsBluetooth: adapter.transportMethods.includes(
+      TransportMethod.BLUETOOTH,
+    ),
     supportsNFC: adapter.transportMethods.includes(TransportMethod.NFC),
     supportsQR: adapter.transportMethods.includes(TransportMethod.QR),
   };
@@ -80,7 +82,7 @@ export interface UseHardwareWalletReturn {
   /** Sign a transaction on the hardware device. */
   signTransaction: <T extends Transaction | VersionedTransaction>(
     transaction: T,
-    path?: string
+    path?: string,
   ) => Promise<T>;
   /** Sign an arbitrary message on the hardware device. */
   signMessage: (message: Uint8Array, path?: string) => Promise<Uint8Array>;
@@ -89,9 +91,10 @@ export interface UseHardwareWalletReturn {
 }
 
 export function useHardwareWallet(
-  options: UseHardwareWalletOptions
+  options: UseHardwareWalletOptions,
 ): UseHardwareWalletReturn {
-  const [activeAdapter, setActiveAdapter] = useState<HardwareWalletAdapter | null>(null);
+  const [activeAdapter, setActiveAdapter] =
+    useState<HardwareWalletAdapter | null>(null);
   const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
@@ -110,7 +113,7 @@ export function useHardwareWallet(
         if (!adapter) {
           throw new HardwareWalletConnectionError(
             `Adapter "${adapterName}" not found. ` +
-            `Available: ${options.adapters.map((a) => a.name).join(', ')}`
+              `Available: ${options.adapters.map((a) => a.name).join(", ")}`,
           );
         }
 
@@ -127,7 +130,7 @@ export function useHardwareWallet(
         setIsConnecting(false);
       }
     },
-    [options.adapters, defaultPath]
+    [options.adapters, defaultPath],
   );
 
   const disconnect = useCallback(async () => {
@@ -145,7 +148,7 @@ export function useHardwareWallet(
     async (path: string) => {
       if (!activeAdapter) {
         throw new HardwareWalletConnectionError(
-          'No adapter is active. Call connect() first.'
+          "No adapter is active. Call connect() first.",
         );
       }
       try {
@@ -158,17 +161,17 @@ export function useHardwareWallet(
         throw err;
       }
     },
-    [activeAdapter]
+    [activeAdapter],
   );
 
   const signTransaction = useCallback(
     async <T extends Transaction | VersionedTransaction>(
       transaction: T,
-      path: string = defaultPath
+      path: string = defaultPath,
     ): Promise<T> => {
       if (!activeAdapter) {
         throw new HardwareWalletConnectionError(
-          'No adapter is active. Call connect() first.'
+          "No adapter is active. Call connect() first.",
         );
       }
       setIsSigning(true);
@@ -183,14 +186,17 @@ export function useHardwareWallet(
         setIsSigning(false);
       }
     },
-    [activeAdapter, defaultPath]
+    [activeAdapter, defaultPath],
   );
 
   const signMessage = useCallback(
-    async (message: Uint8Array, path: string = defaultPath): Promise<Uint8Array> => {
+    async (
+      message: Uint8Array,
+      path: string = defaultPath,
+    ): Promise<Uint8Array> => {
       if (!activeAdapter) {
         throw new HardwareWalletConnectionError(
-          'No adapter is active. Call connect() first.'
+          "No adapter is active. Call connect() first.",
         );
       }
       setIsSigning(true);
@@ -205,7 +211,7 @@ export function useHardwareWallet(
         setIsSigning(false);
       }
     },
-    [activeAdapter, defaultPath]
+    [activeAdapter, defaultPath],
   );
 
   const clearError = useCallback(() => setError(null), []);

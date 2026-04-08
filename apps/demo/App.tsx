@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,18 +8,26 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-} from 'react-native';
+} from "react-native";
 import {
   useHardwareWallet,
   useQRInteraction,
   TransportMethod,
   DEFAULT_DERIVATION_PATH,
-} from '@solana-wallet-sdk/react-native';
-import { LedgerAdapter, type TransportCreator } from '@solana-wallet-sdk/ledger-adapter';
-import { TrezorAdapter } from '@solana-wallet-sdk/trezor-adapter';
-import { KeystoneAdapter } from '@solana-wallet-sdk/keystone-adapter';
-import { SafePalAdapter } from '@solana-wallet-sdk/safepal-adapter';
-import { Transaction, SystemProgram, PublicKey, Connection } from '@solana/web3.js';
+} from "@solana-wallet-sdk/react-native";
+import {
+  LedgerAdapter,
+  type TransportCreator,
+} from "@solana-wallet-sdk/ledger-adapter";
+import { TrezorAdapter } from "@solana-wallet-sdk/trezor-adapter";
+import { KeystoneAdapter } from "@solana-wallet-sdk/keystone-adapter";
+import { SafePalAdapter } from "@solana-wallet-sdk/safepal-adapter";
+import {
+  Transaction,
+  SystemProgram,
+  PublicKey,
+  Connection,
+} from "@solana/web3.js";
 
 // ─── Adapter Setup ──────────────────────────────────────────────────────────
 
@@ -28,7 +36,9 @@ import { Transaction, SystemProgram, PublicKey, Connection } from '@solana/web3.
 //   const ledger = new LedgerAdapter(TransportBLE);
 const mockTransport: TransportCreator = {
   create: async () => {
-    throw new Error('Inject a real transport (e.g. TransportBLE) for production use.');
+    throw new Error(
+      "Inject a real transport (e.g. TransportBLE) for production use.",
+    );
   },
 };
 
@@ -43,11 +53,14 @@ export default function App() {
   const adapters = useMemo(
     () => [
       new LedgerAdapter(mockTransport),
-      new TrezorAdapter({ email: 'demo@example.com', appUrl: 'https://example.com' }),
+      new TrezorAdapter({
+        email: "demo@example.com",
+        appUrl: "https://example.com",
+      }),
       new KeystoneAdapter(qrProvider),
       new SafePalAdapter({ qrProvider }),
     ],
-    [qrProvider]
+    [qrProvider],
   );
 
   const {
@@ -67,12 +80,13 @@ export default function App() {
 
   // ─── Local State ────────────────────────────────────────────────────────
 
-  const [derivationIndex, setDerivationIndex] = useState('0');
-  const [messageText, setMessageText] = useState('Sign-In With Solana');
+  const [derivationIndex, setDerivationIndex] = useState("0");
+  const [messageText, setMessageText] = useState("Sign-In With Solana");
   const [lastSignature, setLastSignature] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
 
-  const addLog = (msg: string) => setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  const addLog = (msg: string) =>
+    setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
   // ─── Actions ────────────────────────────────────────────────────────────
 
@@ -90,10 +104,10 @@ export default function App() {
   };
 
   const handleDisconnect = async () => {
-    addLog('Disconnecting...');
+    addLog("Disconnecting...");
     await disconnect();
     setLastSignature(null);
-    addLog('Disconnected');
+    addLog("Disconnected");
   };
 
   const handleDeriveAccount = async () => {
@@ -113,7 +127,7 @@ export default function App() {
     try {
       const msg = new TextEncoder().encode(messageText);
       const sig = await signMessage(msg);
-      const hex = Buffer.from(sig).toString('hex').substring(0, 32) + '...';
+      const hex = Buffer.from(sig).toString("hex").substring(0, 32) + "...";
       setLastSignature(hex);
       addLog(`✅ Signature: ${hex}`);
     } catch (e: unknown) {
@@ -124,9 +138,9 @@ export default function App() {
 
   const handleSignTransaction = async () => {
     if (!publicKey) return;
-    addLog('Creating and signing SOL transfer transaction...');
+    addLog("Creating and signing SOL transfer transaction...");
     try {
-      const connection = new Connection('https://api.devnet.solana.com');
+      const connection = new Connection("https://api.devnet.solana.com");
       const blockhash = await connection.getLatestBlockhash();
 
       const tx = new Transaction().add(
@@ -134,13 +148,15 @@ export default function App() {
           fromPubkey: publicKey,
           toPubkey: publicKey, // Self-transfer for demo
           lamports: 1000,
-        })
+        }),
       );
       tx.recentBlockhash = blockhash.blockhash;
       tx.feePayer = publicKey;
 
       const signed = await signTransaction(tx);
-      addLog(`✅ Transaction signed with ${signed.signatures.length} signature(s)`);
+      addLog(
+        `✅ Transaction signed with ${signed.signatures.length} signature(s)`,
+      );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       addLog(`❌ ${msg}`);
@@ -160,7 +176,9 @@ export default function App() {
           </Text>
         </View>
         <TouchableOpacity style={styles.button} onPress={onQRDisplayDone}>
-          <Text style={styles.buttonText}>Done — I've shown it to the device</Text>
+          <Text style={styles.buttonText}>
+            Done — I've shown it to the device
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -177,7 +195,9 @@ export default function App() {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => onQRScanned(JSON.stringify({ status: 'ok', result: '' }))}
+          onPress={() =>
+            onQRScanned(JSON.stringify({ status: "ok", result: "" }))
+          }
         >
           <Text style={styles.buttonText}>Simulate Scan</Text>
         </TouchableOpacity>
@@ -204,7 +224,10 @@ export default function App() {
               keyboardType="numeric"
               placeholder="Index"
             />
-            <TouchableOpacity style={styles.buttonSmall} onPress={handleDeriveAccount}>
+            <TouchableOpacity
+              style={styles.buttonSmall}
+              onPress={handleDeriveAccount}
+            >
               <Text style={styles.buttonText}>Derive</Text>
             </TouchableOpacity>
           </View>
@@ -225,7 +248,7 @@ export default function App() {
             disabled={isSigning}
           >
             <Text style={styles.buttonText}>
-              {isSigning ? 'Signing...' : 'Sign Message'}
+              {isSigning ? "Signing..." : "Sign Message"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -239,7 +262,7 @@ export default function App() {
             disabled={isSigning}
           >
             <Text style={styles.buttonText}>
-              {isSigning ? 'Signing...' : 'Sign SOL Transfer (Devnet)'}
+              {isSigning ? "Signing..." : "Sign SOL Transfer (Devnet)"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -253,7 +276,10 @@ export default function App() {
         )}
 
         {/* Disconnect */}
-        <TouchableOpacity style={styles.dangerButton} onPress={handleDisconnect}>
+        <TouchableOpacity
+          style={styles.dangerButton}
+          onPress={handleDisconnect}
+        >
           <Text style={styles.buttonText}>Disconnect</Text>
         </TouchableOpacity>
 
@@ -261,7 +287,9 @@ export default function App() {
         <View style={styles.logSection}>
           <Text style={styles.sectionTitle}>Activity Log</Text>
           {logs.slice(-10).map((log, i) => (
-            <Text key={i} style={styles.logLine}>{log}</Text>
+            <Text key={i} style={styles.logLine}>
+              {log}
+            </Text>
           ))}
         </View>
       </ScrollView>
@@ -307,7 +335,9 @@ export default function App() {
             {cap.supportsBluetooth && (
               <TouchableOpacity
                 style={styles.transportButton}
-                onPress={() => handleConnect(cap.name, TransportMethod.BLUETOOTH)}
+                onPress={() =>
+                  handleConnect(cap.name, TransportMethod.BLUETOOTH)
+                }
                 disabled={isConnecting}
               >
                 <Text style={styles.transportText}>📶 BLE</Text>
@@ -340,7 +370,9 @@ export default function App() {
         <View style={styles.logSection}>
           <Text style={styles.sectionTitle}>Activity Log</Text>
           {logs.slice(-5).map((log, i) => (
-            <Text key={i} style={styles.logLine}>{log}</Text>
+            <Text key={i} style={styles.logLine}>
+              {log}
+            </Text>
           ))}
         </View>
       )}
@@ -355,175 +387,175 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#0F0F1A',
+    backgroundColor: "#0F0F1A",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   address: {
     fontSize: 12,
-    color: '#9945FF',
-    fontFamily: 'monospace',
-    textAlign: 'center',
+    color: "#9945FF",
+    fontFamily: "monospace",
+    textAlign: "center",
     marginBottom: 20,
   },
   section: {
     marginBottom: 20,
     padding: 16,
-    backgroundColor: '#1A1A2E',
+    backgroundColor: "#1A1A2E",
     borderRadius: 12,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: "600",
+    color: "#FFFFFF",
     marginBottom: 12,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   input: {
     flex: 1,
     height: 44,
-    backgroundColor: '#252540',
+    backgroundColor: "#252540",
     borderRadius: 8,
     paddingHorizontal: 12,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
   },
   button: {
-    backgroundColor: '#9945FF',
+    backgroundColor: "#9945FF",
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonSmall: {
-    backgroundColor: '#9945FF',
+    backgroundColor: "#9945FF",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   dangerButton: {
-    backgroundColor: '#E53E3E',
+    backgroundColor: "#E53E3E",
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   disabled: {
     opacity: 0.5,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   walletCard: {
-    backgroundColor: '#1A1A2E',
+    backgroundColor: "#1A1A2E",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   walletName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 10,
   },
   transportRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   transportButton: {
     flex: 1,
-    backgroundColor: '#252540',
+    backgroundColor: "#252540",
     paddingVertical: 10,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   transportText: {
-    color: '#9945FF',
+    color: "#9945FF",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   errorBox: {
-    backgroundColor: '#3B1A1A',
+    backgroundColor: "#3B1A1A",
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   errorText: {
-    color: '#FF6B6B',
+    color: "#FF6B6B",
     flex: 1,
     fontSize: 13,
   },
   clearError: {
-    color: '#FF6B6B',
-    fontWeight: 'bold',
+    color: "#FF6B6B",
+    fontWeight: "bold",
     marginLeft: 8,
   },
   loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
     gap: 8,
   },
   loadingText: {
-    color: '#9945FF',
+    color: "#9945FF",
     fontSize: 14,
   },
   mono: {
-    fontFamily: 'monospace',
+    fontFamily: "monospace",
     fontSize: 12,
-    color: '#14F195',
+    color: "#14F195",
   },
   qrPlaceholder: {
-    backgroundColor: '#1A1A2E',
+    backgroundColor: "#1A1A2E",
     padding: 24,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20,
   },
   qrText: {
-    fontFamily: 'monospace',
+    fontFamily: "monospace",
     fontSize: 10,
-    color: '#888',
-    textAlign: 'center',
+    color: "#888",
+    textAlign: "center",
   },
   hint: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   logSection: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: '#111122',
+    backgroundColor: "#111122",
     borderRadius: 8,
   },
   logLine: {
-    fontFamily: 'monospace',
+    fontFamily: "monospace",
     fontSize: 11,
-    color: '#666',
+    color: "#666",
     marginBottom: 2,
   },
 });

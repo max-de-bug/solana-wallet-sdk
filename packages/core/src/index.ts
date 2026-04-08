@@ -1,4 +1,4 @@
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -11,10 +11,10 @@ export const DEFAULT_DERIVATION_PATH = "m/44'/501'/0'/0'";
  * Transport methods supported by various hardware wallets.
  */
 export enum TransportMethod {
-  USB = 'USB',
-  BLUETOOTH = 'BLUETOOTH',
-  NFC = 'NFC',
-  QR = 'QR',
+  USB = "USB",
+  BLUETOOTH = "BLUETOOTH",
+  NFC = "NFC",
+  QR = "QR",
 }
 
 // ─── QR Interaction Provider ────────────────────────────────────────────────
@@ -113,7 +113,7 @@ export interface HardwareWalletAdapter {
    */
   signTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
-    path: string
+    path: string,
   ): Promise<T>;
 
   /**
@@ -135,11 +135,14 @@ export interface HardwareWalletAdapter {
  * Extends native Error with proper prototype chain for `instanceof` checks.
  */
 export class HardwareWalletError extends Error {
-  public override name: string = 'HardwareWalletError';
+  public override name: string = "HardwareWalletError";
 
-  constructor(message: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
     super(message);
-    this.name = 'HardwareWalletError';
+    this.name = "HardwareWalletError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
@@ -148,19 +151,19 @@ export class HardwareWalletError extends Error {
  * Thrown when a connection or transport-level operation fails.
  */
 export class HardwareWalletConnectionError extends HardwareWalletError {
-  public override readonly name = 'HardwareWalletConnectionError';
+  public override readonly name = "HardwareWalletConnectionError";
 }
 
 /**
  * Thrown when a signing operation fails or is rejected by the user.
  */
 export class HardwareWalletSignError extends HardwareWalletError {
-  public override readonly name = 'HardwareWalletSignError';
+  public override readonly name = "HardwareWalletSignError";
 }
 
 /**
  * Thrown when a hardware wallet operation exceeds the expected time limit.
  */
 export class HardwareWalletTimeoutError extends HardwareWalletError {
-  public override readonly name = 'HardwareWalletTimeoutError';
+  public override readonly name = "HardwareWalletTimeoutError";
 }

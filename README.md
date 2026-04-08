@@ -4,12 +4,12 @@ An open-source, modular adapter system that lets React Native Solana dApps conne
 
 ## 🌟 Supported Hardware Wallets
 
-| Wallet | Transport Methods | Connection Type |
-|--------|------------------|----------------|
-| **Ledger** | USB, Bluetooth | Direct transport |
-| **Trezor** | USB | Trezor Connect bridge |
-| **Keystone** | QR Code | Air-gapped (UR protocol) |
-| **SafePal** | QR Code, Bluetooth | QR bridge / BLE |
+| Wallet       | Transport Methods  | Connection Type          |
+| ------------ | ------------------ | ------------------------ |
+| **Ledger**   | USB, Bluetooth     | Direct transport         |
+| **Trezor**   | USB                | Trezor Connect bridge    |
+| **Keystone** | QR Code            | Air-gapped (UR protocol) |
+| **SafePal**  | QR Code, Bluetooth | QR bridge / BLE          |
 
 ## 🏗 Architecture Overview
 
@@ -69,9 +69,12 @@ npm install react-native-vision-camera react-native-qrcode-svg
 ### Basic Usage
 
 ```tsx
-import { useHardwareWallet, TransportMethod } from '@solana-wallet-sdk/react-native';
-import { LedgerAdapter } from '@solana-wallet-sdk/ledger-adapter';
-import TransportBLE from '@ledgerhq/hw-transport-react-native-ble';
+import {
+  useHardwareWallet,
+  TransportMethod,
+} from "@solana-wallet-sdk/react-native";
+import { LedgerAdapter } from "@solana-wallet-sdk/ledger-adapter";
+import TransportBLE from "@ledgerhq/hw-transport-react-native-ble";
 
 const ledger = new LedgerAdapter(TransportBLE);
 
@@ -85,7 +88,7 @@ export default function App() {
   return (
     <Button
       title="Connect Ledger"
-      onPress={() => connect('Ledger', TransportMethod.BLUETOOTH)}
+      onPress={() => connect("Ledger", TransportMethod.BLUETOOTH)}
     />
   );
 }
@@ -94,8 +97,12 @@ export default function App() {
 ### QR-Based Wallets (Keystone / SafePal)
 
 ```tsx
-import { useHardwareWallet, useQRInteraction, TransportMethod } from '@solana-wallet-sdk/react-native';
-import { KeystoneAdapter } from '@solana-wallet-sdk/keystone-adapter';
+import {
+  useHardwareWallet,
+  useQRInteraction,
+  TransportMethod,
+} from "@solana-wallet-sdk/react-native";
+import { KeystoneAdapter } from "@solana-wallet-sdk/keystone-adapter";
 
 export default function App() {
   const { qrProvider, qrData, isScanning, onQRScanned, onQRDisplayDone } =
@@ -109,7 +116,7 @@ export default function App() {
       {isScanning && <QRScanner onScan={onQRScanned} />}
       <Button
         title="Connect Keystone"
-        onPress={() => connect('Keystone', TransportMethod.QR)}
+        onPress={() => connect("Keystone", TransportMethod.QR)}
       />
     </>
   );
@@ -120,39 +127,40 @@ export default function App() {
 
 ### `TransportMethod` (enum)
 
-| Value | Description |
-|-------|-------------|
-| `USB` | Wired USB/OTG connection |
-| `BLUETOOTH` | BLE wireless connection |
-| `NFC` | Near-Field Communication |
-| `QR` | QR code air-gapped exchange |
+| Value       | Description                 |
+| ----------- | --------------------------- |
+| `USB`       | Wired USB/OTG connection    |
+| `BLUETOOTH` | BLE wireless connection     |
+| `NFC`       | Near-Field Communication    |
+| `QR`        | QR code air-gapped exchange |
 
 ### `HardwareWalletAdapter` (interface)
 
 Every adapter implements this contract:
 
-| Property / Method | Type | Description |
-|-------------------|------|-------------|
-| `name` | `string` | Human-readable wallet name |
-| `transportMethods` | `TransportMethod[]` | Supported transport methods |
-| `connect(method)` | `Promise<void>` | Open connection via the given transport |
-| `disconnect()` | `Promise<void>` | Close connection and release resources |
-| `deriveAccount(path)` | `Promise<PublicKey>` | Derive key at BIP-44 path |
-| `signTransaction(tx, path)` | `Promise<T>` | Sign `Transaction` or `VersionedTransaction` |
-| `signMessage(msg, path)` | `Promise<Uint8Array>` | Sign arbitrary bytes (SIWS) |
+| Property / Method           | Type                  | Description                                  |
+| --------------------------- | --------------------- | -------------------------------------------- |
+| `name`                      | `string`              | Human-readable wallet name                   |
+| `transportMethods`          | `TransportMethod[]`   | Supported transport methods                  |
+| `connect(method)`           | `Promise<void>`       | Open connection via the given transport      |
+| `disconnect()`              | `Promise<void>`       | Close connection and release resources       |
+| `deriveAccount(path)`       | `Promise<PublicKey>`  | Derive key at BIP-44 path                    |
+| `signTransaction(tx, path)` | `Promise<T>`          | Sign `Transaction` or `VersionedTransaction` |
+| `signMessage(msg, path)`    | `Promise<Uint8Array>` | Sign arbitrary bytes (SIWS)                  |
 
 ### `QRInteractionProvider` (interface)
 
 Callback contract for air-gapped adapters. Injected into Keystone and SafePal constructors:
 
-| Method | Description |
-|--------|-------------|
-| `displayQR(data, type)` | Render a QR code to the user |
+| Method                  | Description                        |
+| ----------------------- | ---------------------------------- |
+| `displayQR(data, type)` | Render a QR code to the user       |
 | `scanQR(expectedTypes)` | Activate camera and scan a QR code |
 
 ### `useHardwareWallet(options)` (hook)
 
 **Options:**
+
 - `adapters`: `HardwareWalletAdapter[]` — Array of adapter instances
 - `defaultDerivationPath?`: `string` — Default BIP-44 path (default: `m/44'/501'/0'/0'`)
 
@@ -176,23 +184,23 @@ Callback contract for air-gapped adapters. Injected into Keystone and SafePal co
 
 Bridges QR-based adapters to React state:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `qrProvider` | `QRInteractionProvider` | Inject into Keystone/SafePal constructor |
-| `qrData` | `string \| null` | QR payload to display |
-| `qrType` | `string \| null` | Type hint for the QR |
-| `isScanning` | `boolean` | Whether scanner should be active |
-| `onQRScanned(data)` | `(string) => void` | Call when camera decodes a QR |
-| `onQRDisplayDone()` | `() => void` | Call when user acknowledges displayed QR |
+| Property            | Type                    | Description                              |
+| ------------------- | ----------------------- | ---------------------------------------- |
+| `qrProvider`        | `QRInteractionProvider` | Inject into Keystone/SafePal constructor |
+| `qrData`            | `string \| null`        | QR payload to display                    |
+| `qrType`            | `string \| null`        | Type hint for the QR                     |
+| `isScanning`        | `boolean`               | Whether scanner should be active         |
+| `onQRScanned(data)` | `(string) => void`      | Call when camera decodes a QR            |
+| `onQRDisplayDone()` | `() => void`            | Call when user acknowledges displayed QR |
 
 ### Error Classes
 
-| Class | Description |
-|-------|-------------|
-| `HardwareWalletError` | Base error class for all SDK errors |
-| `HardwareWalletConnectionError` | Connection or transport failures |
-| `HardwareWalletSignError` | Signing failures or user rejections |
-| `HardwareWalletTimeoutError` | Operation timeout |
+| Class                           | Description                         |
+| ------------------------------- | ----------------------------------- |
+| `HardwareWalletError`           | Base error class for all SDK errors |
+| `HardwareWalletConnectionError` | Connection or transport failures    |
+| `HardwareWalletSignError`       | Signing failures or user rejections |
+| `HardwareWalletTimeoutError`    | Operation timeout                   |
 
 ### Adapter Constructors
 
@@ -269,6 +277,7 @@ A: This means the user declined the transaction on the hardware device screen. T
 
 **Q: How do I run the demo app?**
 A: Clone the repo, then:
+
 ```bash
 pnpm install
 cd apps/demo

@@ -5,8 +5,8 @@ import {
   HardwareWalletSignError,
   HardwareWalletError,
   QRInteractionProvider,
-} from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+} from "@solana-wallet-sdk/core";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 // ─── SafePal QR Protocol ────────────────────────────────────────────────────
 
@@ -22,14 +22,14 @@ import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
  */
 
 interface SafePalQRRequest {
-  chain: 'solana';
-  action: 'get_address' | 'sign_transaction' | 'sign_message';
+  chain: "solana";
+  action: "get_address" | "sign_transaction" | "sign_message";
   data: string;
   path: string;
 }
 
 interface SafePalQRResponse {
-  status: 'ok' | 'error';
+  status: "ok" | "error";
   result: string;
   error?: string;
 }
@@ -61,7 +61,7 @@ export interface SafePalAdapterConfig {
 // ─── SafePal Adapter ────────────────────────────────────────────────────────
 
 export class SafePalAdapter implements HardwareWalletAdapter {
-  public readonly name = 'SafePal';
+  public readonly name = "SafePal";
   public readonly transportMethods: readonly TransportMethod[];
 
   private readonly qrProvider?: QRInteractionProvider;
@@ -80,7 +80,7 @@ export class SafePalAdapter implements HardwareWalletAdapter {
 
     if (methods.length === 0) {
       throw new Error(
-        'SafePalAdapter requires at least one transport: qrProvider or bleTransport.'
+        "SafePalAdapter requires at least one transport: qrProvider or bleTransport.",
       );
     }
   }
@@ -89,8 +89,8 @@ export class SafePalAdapter implements HardwareWalletAdapter {
     if (!this.transportMethods.includes(method)) {
       throw new HardwareWalletConnectionError(
         `Transport method "${method}" is not available. ` +
-        `Configured: ${this.transportMethods.join(', ')}. ` +
-        'Provide the corresponding transport in SafePalAdapterConfig.'
+          `Configured: ${this.transportMethods.join(", ")}. ` +
+          "Provide the corresponding transport in SafePalAdapterConfig.",
       );
     }
 
@@ -101,7 +101,7 @@ export class SafePalAdapter implements HardwareWalletAdapter {
         const message = e instanceof Error ? e.message : String(e);
         throw new HardwareWalletConnectionError(
           `SafePal Bluetooth connection failed: ${message}`,
-          e
+          e,
         );
       }
     }
@@ -120,15 +120,15 @@ export class SafePalAdapter implements HardwareWalletAdapter {
     this.assertConnected();
     try {
       const request: SafePalQRRequest = {
-        chain: 'solana',
-        action: 'get_address',
-        data: '',
+        chain: "solana",
+        action: "get_address",
+        data: "",
         path,
       };
 
       const response = await this.exchange(request);
-      if (response.status === 'error') {
-        throw new Error(response.error || 'Unknown SafePal error');
+      if (response.status === "error") {
+        throw new Error(response.error || "Unknown SafePal error");
       }
 
       return new PublicKey(response.result);
@@ -136,14 +136,14 @@ export class SafePalAdapter implements HardwareWalletAdapter {
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletError(
         `SafePal account derivation failed: ${message}`,
-        e
+        e,
       );
     }
   }
 
   public async signTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
-    path: string
+    path: string,
   ): Promise<T> {
     this.assertConnected();
     try {
@@ -153,18 +153,18 @@ export class SafePalAdapter implements HardwareWalletAdapter {
           : transaction.serializeMessage();
 
       const request: SafePalQRRequest = {
-        chain: 'solana',
-        action: 'sign_transaction',
-        data: Buffer.from(messageBytes).toString('hex'),
+        chain: "solana",
+        action: "sign_transaction",
+        data: Buffer.from(messageBytes).toString("hex"),
         path,
       };
 
       const response = await this.exchange(request);
-      if (response.status === 'error') {
-        throw new Error(response.error || 'Signing rejected or failed');
+      if (response.status === "error") {
+        throw new Error(response.error || "Signing rejected or failed");
       }
 
-      const sigBytes = Buffer.from(response.result, 'hex');
+      const sigBytes = Buffer.from(response.result, "hex");
       const pubkey = await this.deriveAccount(path);
       transaction.addSignature(pubkey, sigBytes);
       return transaction;
@@ -172,35 +172,35 @@ export class SafePalAdapter implements HardwareWalletAdapter {
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `SafePal transaction signing failed: ${message}`,
-        e
+        e,
       );
     }
   }
 
   public async signMessage(
     message: Uint8Array,
-    path: string
+    path: string,
   ): Promise<Uint8Array> {
     this.assertConnected();
     try {
       const request: SafePalQRRequest = {
-        chain: 'solana',
-        action: 'sign_message',
-        data: Buffer.from(message).toString('hex'),
+        chain: "solana",
+        action: "sign_message",
+        data: Buffer.from(message).toString("hex"),
         path,
       };
 
       const response = await this.exchange(request);
-      if (response.status === 'error') {
-        throw new Error(response.error || 'Message signing rejected');
+      if (response.status === "error") {
+        throw new Error(response.error || "Message signing rejected");
       }
 
-      return new Uint8Array(Buffer.from(response.result, 'hex'));
+      return new Uint8Array(Buffer.from(response.result, "hex"));
     } catch (e: unknown) {
       const message_ = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `SafePal message signing failed: ${message_}`,
-        e
+        e,
       );
     }
   }
@@ -210,7 +210,7 @@ export class SafePalAdapter implements HardwareWalletAdapter {
   private assertConnected(): void {
     if (!this.activeMethod) {
       throw new HardwareWalletConnectionError(
-        'SafePal is not connected. Call connect() first.'
+        "SafePal is not connected. Call connect() first.",
       );
     }
   }
@@ -218,7 +218,9 @@ export class SafePalAdapter implements HardwareWalletAdapter {
   /**
    * Route the request through either QR or BLE depending on active method.
    */
-  private async exchange(request: SafePalQRRequest): Promise<SafePalQRResponse> {
+  private async exchange(
+    request: SafePalQRRequest,
+  ): Promise<SafePalQRResponse> {
     const payload = JSON.stringify(request);
 
     if (this.activeMethod === TransportMethod.BLUETOOTH) {
@@ -228,7 +230,9 @@ export class SafePalAdapter implements HardwareWalletAdapter {
 
     // QR flow: display request QR, then scan response QR
     await this.qrProvider!.displayQR(payload, `safepal-${request.action}`);
-    const responseString = await this.qrProvider!.scanQR([`safepal-${request.action}-response`]);
+    const responseString = await this.qrProvider!.scanQR([
+      `safepal-${request.action}-response`,
+    ]);
     return JSON.parse(responseString) as SafePalQRResponse;
   }
 }

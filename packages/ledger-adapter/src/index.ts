@@ -4,10 +4,10 @@ import {
   HardwareWalletConnectionError,
   HardwareWalletSignError,
   HardwareWalletError,
-} from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
-import Solana from '@ledgerhq/hw-app-solana';
-import type Transport from '@ledgerhq/hw-transport';
+} from "@solana-wallet-sdk/core";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import Solana from "@ledgerhq/hw-app-solana";
+import type Transport from "@ledgerhq/hw-transport";
 
 // ─── Transport Creator ─────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ export interface TransportCreator {
 // ─── Ledger Adapter ─────────────────────────────────────────────────────────
 
 export class LedgerAdapter implements HardwareWalletAdapter {
-  public readonly name = 'Ledger';
+  public readonly name = "Ledger";
   public readonly transportMethods = [
     TransportMethod.USB,
     TransportMethod.BLUETOOTH,
@@ -41,25 +41,27 @@ export class LedgerAdapter implements HardwareWalletAdapter {
   constructor(private readonly transportCreator: TransportCreator) {}
 
   public async connect(method: TransportMethod): Promise<void> {
-    if (!(this.transportMethods as readonly TransportMethod[]).includes(method)) {
+    if (
+      !(this.transportMethods as readonly TransportMethod[]).includes(method)
+    ) {
       throw new HardwareWalletConnectionError(
         `Transport method "${method}" is not supported by Ledger. ` +
-        `Supported: ${this.transportMethods.join(', ')}`
+          `Supported: ${this.transportMethods.join(", ")}`,
       );
     }
 
     try {
       this.transport = await this.transportCreator.create();
       if (!this.transport) {
-        throw new Error('Transport creation returned null');
+        throw new Error("Transport creation returned null");
       }
       this.app = new Solana(this.transport);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletConnectionError(
         `Ledger connection failed: ${message}. ` +
-        'Ensure the Solana app is open on your Ledger device.',
-        e
+          "Ensure the Solana app is open on your Ledger device.",
+        e,
       );
     }
   }
@@ -86,7 +88,7 @@ export class LedgerAdapter implements HardwareWalletAdapter {
 
   public async signTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
-    path: string
+    path: string,
   ): Promise<T> {
     this.assertConnected();
     try {
@@ -99,7 +101,7 @@ export class LedgerAdapter implements HardwareWalletAdapter {
 
       const { signature } = await this.app!.signTransaction(
         cleanPath,
-        Buffer.from(messageBytes)
+        Buffer.from(messageBytes),
       );
 
       const pubkey = await this.deriveAccount(path);
@@ -108,41 +110,41 @@ export class LedgerAdapter implements HardwareWalletAdapter {
     } catch (e: unknown) {
       if (isLedgerUserRejection(e)) {
         throw new HardwareWalletSignError(
-          'User rejected the transaction on Ledger device.',
-          e
+          "User rejected the transaction on Ledger device.",
+          e,
         );
       }
       const message = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `Ledger transaction signing failed: ${message}`,
-        e
+        e,
       );
     }
   }
 
   public async signMessage(
     message: Uint8Array,
-    path: string
+    path: string,
   ): Promise<Uint8Array> {
     this.assertConnected();
     try {
       const cleanPath = stripDerivationPrefix(path);
       const { signature } = await this.app!.signOffchainMessage(
         cleanPath,
-        Buffer.from(message)
+        Buffer.from(message),
       );
       return new Uint8Array(signature);
     } catch (e: unknown) {
       if (isLedgerUserRejection(e)) {
         throw new HardwareWalletSignError(
-          'User rejected the message signing on Ledger device.',
-          e
+          "User rejected the message signing on Ledger device.",
+          e,
         );
       }
       const message_ = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletSignError(
         `Ledger message signing failed: ${message_}`,
-        e
+        e,
       );
     }
   }
@@ -152,7 +154,7 @@ export class LedgerAdapter implements HardwareWalletAdapter {
   private assertConnected(): void {
     if (!this.app || !this.transport) {
       throw new HardwareWalletConnectionError(
-        'Not connected to Ledger. Call connect() first.'
+        "Not connected to Ledger. Call connect() first.",
       );
     }
   }
@@ -162,15 +164,15 @@ export class LedgerAdapter implements HardwareWalletAdapter {
 
 /** Strip the "m/" prefix from a derivation path for Ledger API consumption. */
 function stripDerivationPrefix(path: string): string {
-  return path.startsWith('m/') ? path.slice(2) : path;
+  return path.startsWith("m/") ? path.slice(2) : path;
 }
 
 /** Check if a Ledger error is a user rejection (status code 0x6985). */
 function isLedgerUserRejection(e: unknown): boolean {
   return (
-    typeof e === 'object' &&
+    typeof e === "object" &&
     e !== null &&
-    'statusCode' in e &&
+    "statusCode" in e &&
     (e as { statusCode: number }).statusCode === 0x6985
   );
 }
