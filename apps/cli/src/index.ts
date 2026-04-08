@@ -5,6 +5,9 @@ import {
 import { TrezorAdapter } from "@solana-wallet-sdk/trezor-adapter";
 import { KeystoneAdapter } from "@solana-wallet-sdk/keystone-adapter";
 import { SafePalAdapter } from "@solana-wallet-sdk/safepal-adapter";
+import { TangemAdapter } from "@solana-wallet-sdk/tangem-adapter";
+import { UnruggableAdapter } from "@solana-wallet-sdk/unruggable-adapter";
+import { SolflareShieldAdapter } from "@solana-wallet-sdk/solflare-shield-adapter";
 import {
   TransportMethod,
   QRInteractionProvider,
@@ -234,6 +237,75 @@ async function demoSafePal(): Promise<void> {
   }
 }
 
+async function demoTangem(): Promise<void> {
+  printHeader("Tangem Demo (NFC)");
+  printInfo("Requires: Tangem card and NFC-enabled device (simulated)");
+
+  const adapter = new TangemAdapter({ scanOnConnect: true });
+
+  try {
+    printStep(1, "Connecting via NFC...");
+    await adapter.connect(TransportMethod.NFC);
+
+    printStep(2, "Deriving card account...");
+    const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
+    printSuccess(`Public key: ${pubkey.toBase58()}`);
+
+    printStep(3, "Disconnecting...");
+    await adapter.disconnect();
+    printSuccess("Disconnected");
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    printError(msg);
+  }
+}
+
+async function demoUnruggable(): Promise<void> {
+  printHeader("Unruggable Demo (NFC/Bluetooth)");
+  printInfo("Requires: Unruggable hardware wallet");
+
+  const adapter = new UnruggableAdapter();
+
+  try {
+    printStep(1, "Connecting via NFC/Bluetooth...");
+    await adapter.connect(TransportMethod.NFC);
+
+    printStep(2, "Deriving unruggable account...");
+    const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
+    printSuccess(`Public key: ${pubkey.toBase58()}`);
+
+    printStep(3, "Disconnecting...");
+    await adapter.disconnect();
+    printSuccess("Disconnected");
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    printError(msg);
+  }
+}
+
+async function demoSolflareShield(): Promise<void> {
+  printHeader("Solflare Shield Demo (USB/Bluetooth)");
+  printInfo("Requires: Solflare Shield hardware device");
+
+  const adapter = new SolflareShieldAdapter();
+
+  try {
+    printStep(1, "Connecting via USB/Bluetooth...");
+    await adapter.connect(TransportMethod.USB);
+
+    printStep(2, "Deriving Solflare Shield account...");
+    const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
+    printSuccess(`Public key: ${pubkey.toBase58()}`);
+
+    printStep(3, "Disconnecting...");
+    await adapter.disconnect();
+    printSuccess("Disconnected");
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    printError(msg);
+  }
+}
+
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
@@ -254,16 +326,25 @@ async function main(): Promise<void> {
     await demoKeystone();
   } else if (wallet === "safepal") {
     await demoSafePal();
+  } else if (wallet === "tangem") {
+    await demoTangem();
+  } else if (wallet === "unruggable") {
+    await demoUnruggable();
+  } else if (wallet === "solflare-shield") {
+    await demoSolflareShield();
   } else {
     // Run all demos
     console.log("Usage: npm start -- <wallet>");
-    console.log("  Wallets: ledger, trezor, keystone, safepal");
+    console.log("  Wallets: ledger, trezor, keystone, safepal, tangem, unruggable, solflare-shield");
     console.log("  Omit wallet name to run all demos.\n");
 
     await demoLedger();
     await demoTrezor();
     await demoKeystone();
     await demoSafePal();
+    await demoTangem();
+    await demoUnruggable();
+    await demoSolflareShield();
   }
 
   printHeader("Demo Complete");

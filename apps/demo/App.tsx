@@ -22,6 +22,9 @@ import {
 import { TrezorAdapter } from "@solana-wallet-sdk/trezor-adapter";
 import { KeystoneAdapter } from "@solana-wallet-sdk/keystone-adapter";
 import { SafePalAdapter } from "@solana-wallet-sdk/safepal-adapter";
+import { TangemAdapter } from "@solana-wallet-sdk/tangem-adapter";
+import { UnruggableAdapter } from "@solana-wallet-sdk/unruggable-adapter";
+import { SolflareShieldAdapter } from "@solana-wallet-sdk/solflare-shield-adapter";
 import {
   Transaction,
   SystemProgram,
@@ -59,6 +62,9 @@ export default function App() {
       }),
       new KeystoneAdapter(qrProvider),
       new SafePalAdapter({ qrProvider }),
+      new TangemAdapter({ scanOnConnect: true }),
+      new UnruggableAdapter(),
+      new SolflareShieldAdapter(),
     ],
     [qrProvider],
   );
