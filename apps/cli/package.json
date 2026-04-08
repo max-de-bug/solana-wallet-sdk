@@ -1,6 +1,6 @@
 {
   "name": "@solana-wallet-sdk/cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "CLI demo and testing tool for the Solana Unified Hardware Wallet SDK",
   "main": "dist/index.js",

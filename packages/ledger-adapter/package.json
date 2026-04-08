@@ -1,6 +1,6 @@
 {
   "name": "@solana-wallet-sdk/ledger-adapter",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Ledger hardware wallet adapter for the Solana Unified Wallet SDK",
   "license": "Apache-2.0",
   "main": "dist/index.js",

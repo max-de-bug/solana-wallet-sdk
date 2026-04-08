@@ -1,5 +1,13 @@
 # @solana-wallet-sdk/demo
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @solana-wallet-sdk/ledger-adapter@0.2.2
+  - @solana-wallet-sdk/trezor-adapter@0.2.2
+
 ## 0.1.2
 
 ### Patch Changes

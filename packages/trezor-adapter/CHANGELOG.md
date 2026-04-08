@@ -1,5 +1,11 @@
 # @solana-wallet-sdk/trezor-adapter
 
+## 0.2.2
+
+### Patch Changes
+
+- chore: fix internal types to resolve ESLint CI violations
+
 ## 0.2.1
 
 ### Patch Changes
