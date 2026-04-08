@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@solana-wallet-sdk/core": "workspace:*",
+    "@solana-wallet-sdk/react-native": "workspace:*",
+    "@solana-wallet-sdk/ledger-adapter": "workspace:*",
+    "@solana-wallet-sdk/trezor-adapter": "workspace:*",
+    "@solana-wallet-sdk/keystone-adapter": "workspace:*",
     "@solana-wallet-sdk/safepal-adapter": "workspace:*",
     "@solana/web3.js": "^1.89.0",
     "buffer": "^6.0.3",
@@ -18,8 +22,8 @@
     "expo": "^50.0.0",
     "expo-crypto": "~12.8.1",
     "process": "^0.11.10",
-    "react": "^18.2.0",
-    "react-native": "^0.73.0",
+    "react": "18.2.0",
+    "react-native": "0.73.6",
     "react-native-get-random-values": "~1.8.0",
     "stream-browserify": "^3.0.0",
     "text-encoding": "^0.7.0"

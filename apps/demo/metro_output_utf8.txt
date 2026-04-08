@@ -1,0 +1,8 @@
+﻿
+> @solana-wallet-sdk/demo@0.1.2 start D:\projects_d\rust-solana-indexer\solana-wallet-sdk\apps\demo
+> expo start --dev-client
+
+Starting project at D:\projects_d\rust-solana-indexer\solana-wallet-sdk\apps\demo
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.

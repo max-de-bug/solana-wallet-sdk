@@ -48,6 +48,7 @@ export class TrezorAdapter implements HardwareWalletAdapter {
         manifest: {
           email: this.config.email,
           appUrl: this.config.appUrl,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       });
       this.initialized = true;
@@ -128,6 +129,7 @@ export class TrezorAdapter implements HardwareWalletAdapter {
   ): Promise<Uint8Array> {
     this.assertInitialized();
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await (TrezorConnect as any).solanaSignMessage({
         path,
         message: Buffer.from(message).toString('hex'),

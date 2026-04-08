@@ -41,7 +41,7 @@ export class LedgerAdapter implements HardwareWalletAdapter {
   constructor(private readonly transportCreator: TransportCreator) {}
 
   public async connect(method: TransportMethod): Promise<void> {
-    if (!this.transportMethods.includes(method as any)) {
+    if (!(this.transportMethods as readonly TransportMethod[]).includes(method)) {
       throw new HardwareWalletConnectionError(
         `Transport method "${method}" is not supported by Ledger. ` +
         `Supported: ${this.transportMethods.join(', ')}`
