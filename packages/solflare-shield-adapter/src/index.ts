@@ -18,7 +18,7 @@ export class SolflareShieldAdapter implements HardwareWalletAdapter {
   }
 
   public async connect(method: TransportMethod): Promise<void> {
-    if (!this.transportMethods.includes(method as 'usb' | 'bluetooth')) {
+    if (!(this.transportMethods as readonly TransportMethod[]).includes(method)) {
       throw new HardwareWalletConnectionError(
         `Transport method "${method}" is not supported by Solflare Shield. Supported: USB, BLUETOOTH`
       );

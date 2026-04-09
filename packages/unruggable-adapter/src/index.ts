@@ -18,7 +18,7 @@ export class UnruggableAdapter implements HardwareWalletAdapter {
   }
 
   public async connect(method: TransportMethod): Promise<void> {
-    if (!this.transportMethods.includes(method as 'nfc' | 'bluetooth')) {
+    if (!(this.transportMethods as readonly TransportMethod[]).includes(method)) {
       throw new HardwareWalletConnectionError(
         `Transport method "${method}" is not supported by Unruggable. Supported: NFC, BLUETOOTH`
       );

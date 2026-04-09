@@ -4,12 +4,15 @@ An open-source, modular adapter system that lets React Native Solana dApps conne
 
 ## 🌟 Supported Hardware Wallets
 
-| Wallet       | Transport Methods  | Connection Type          |
-| ------------ | ------------------ | ------------------------ |
-| **Ledger**   | USB, Bluetooth     | Direct transport         |
-| **Trezor**   | USB                | Trezor Connect bridge    |
-| **Keystone** | QR Code            | Air-gapped (UR protocol) |
-| **SafePal**  | QR Code, Bluetooth | QR bridge / BLE          |
+| Wallet               | Transport Methods  | Connection Type          |
+| -------------------- | ------------------ | ------------------------ |
+| **Ledger**           | USB, Bluetooth     | Direct transport         |
+| **Trezor**           | USB                | Trezor Connect bridge    |
+| **Keystone**         | QR Code            | Air-gapped (UR protocol) |
+| **SafePal**          | QR Code, Bluetooth | QR bridge / BLE          |
+| **Tangem**           | NFC                | Direct NFC transport     |
+| **Unruggable**       | NFC, Bluetooth     | Mobile app proxy / NFC   |
+| **Solflare Shield**  | USB, Bluetooth     | Direct connection        |
 
 ## 🏗 Architecture Overview
 
@@ -19,15 +22,18 @@ This project is a **pnpm monorepo** powered by **Turborepo**. It uses the **Adap
 
 ### Package Structure
 
-```
-packages/core              → Base types: HardwareWalletAdapter, TransportMethod, errors
-packages/ledger-adapter    → Ledger Nano (USB/BLE) via @ledgerhq/hw-app-solana
-packages/trezor-adapter    → Trezor T/One (USB) via @trezor/connect
-packages/keystone-adapter  → Keystone (QR) via @keystonehq/keystone-sdk + UR protocol
-packages/safepal-adapter   → SafePal (QR/BLE) via proprietary JSON bridge protocol
-packages/react-native      → useHardwareWallet + useQRInteraction hooks
-apps/demo                  → React Native demo app showcasing all wallets
-apps/cli                   → CLI testing tool for programmatic usage
+```text
+packages/core                       → Base types: HardwareWalletAdapter, TransportMethod, errors
+packages/ledger-adapter             → Ledger Nano (USB/BLE) via @ledgerhq/hw-app-solana
+packages/trezor-adapter             → Trezor T/One (USB) via @trezor/connect
+packages/keystone-adapter           → Keystone (QR) via @keystonehq/keystone-sdk + UR protocol
+packages/safepal-adapter            → SafePal (QR/BLE) via proprietary JSON bridge protocol
+packages/tangem-adapter             → Tangem (NFC) direct hardware bindings
+packages/unruggable-adapter         → Unruggable (NFC/BLE) native bindings
+packages/solflare-shield-adapter    → Solflare Shield (USB/BLE) native transport
+packages/react-native               → useHardwareWallet + useQRInteraction hooks
+apps/demo                           → React Native demo app showcasing all 7 wallets
+apps/cli                            → Node.js CLI testing tool for programmatic usage
 ```
 
 ## 🚀 Getting Started
@@ -47,10 +53,13 @@ Install only the adapters your dApp needs:
 npm install @solana-wallet-sdk/core @solana-wallet-sdk/react-native
 
 # Pick your wallet adapter(s)
-npm install @solana-wallet-sdk/ledger-adapter    # Ledger
-npm install @solana-wallet-sdk/trezor-adapter    # Trezor
-npm install @solana-wallet-sdk/keystone-adapter  # Keystone
-npm install @solana-wallet-sdk/safepal-adapter   # SafePal
+npm install @solana-wallet-sdk/ledger-adapter           # Ledger
+npm install @solana-wallet-sdk/trezor-adapter           # Trezor
+npm install @solana-wallet-sdk/keystone-adapter         # Keystone
+npm install @solana-wallet-sdk/safepal-adapter          # SafePal
+npm install @solana-wallet-sdk/tangem-adapter           # Tangem
+npm install @solana-wallet-sdk/unruggable-adapter       # Unruggable
+npm install @solana-wallet-sdk/solflare-shield-adapter  # Solflare Shield
 ```
 
 #### Ledger BLE (React Native)
@@ -251,6 +260,13 @@ new SafePalAdapter(config: {
 - QR mode requires camera permissions and a QR rendering library.
 - BLE mode requires a `SafePalBleTransport` implementation (platform-specific).
 - At least one transport (QR or BLE) must be provided in the constructor config.
+
+### Tangem & Unruggable (NFC)
+- Both wallets rely on physical NFC scans. For React Native, ensure you install and configure a library like `react-native-nfc-manager`.
+- The Solana iOS capability `NFCReaderUsageDescription` must be provided in `Info.plist`.
+
+### Solflare Shield
+- Requires USB-C or Bluetooth configuration similar to Ledger. Ensure standard Bluetooth/USB physical permissions are requested before establishing connection.
 
 ## 🛠 Troubleshooting FAQ
 
