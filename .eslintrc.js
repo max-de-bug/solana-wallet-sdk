@@ -16,5 +16,15 @@ module.exports = {
     '.eslintrc.js',
     'metro.config.js',
     'babel.config.js'
-  ]
+  ],
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_',
+        'caughtErrorsIgnorePattern': '^_'
+      }
+    ]
+  }
 };

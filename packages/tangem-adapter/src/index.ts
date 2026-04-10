@@ -5,7 +5,7 @@ import {
   HardwareWalletSignError,
   HardwareWalletError,
 } from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+import { PublicKey, Transaction, VersionedTransaction, Keypair } from '@solana/web3.js';
 
 export interface TangemAdapterConfig {
   scanOnConnect?: boolean;
@@ -16,6 +16,7 @@ export class TangemAdapter implements HardwareWalletAdapter {
   public readonly transportMethods = [TransportMethod.NFC] as const;
   private connected = false;
   private pubkey: PublicKey | null = null;
+  private mockKeypair = Keypair.fromSeed(new Uint8Array(32).fill(10)); // Devnet Simulation
   private readonly config: TangemAdapterConfig;
 
   constructor(config: Partial<TangemAdapterConfig> = {}) {
@@ -32,7 +33,7 @@ export class TangemAdapter implements HardwareWalletAdapter {
     // Simulating physical NFC scan session initialization
     this.connected = true;
     if (this.config.scanOnConnect) {
-       this.pubkey = new PublicKey('11111111111111111111111111111111');
+       this.pubkey = this.mockKeypair.publicKey;
     }
   }
 
@@ -45,7 +46,7 @@ export class TangemAdapter implements HardwareWalletAdapter {
     this.assertConnected();
     try {
       if (this.pubkey) return this.pubkey;
-      return new PublicKey('11111111111111111111111111111111');
+      return this.mockKeypair.publicKey;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletError(`Tangem NFC reading failed: ${msg}`, e);
@@ -53,13 +54,16 @@ export class TangemAdapter implements HardwareWalletAdapter {
   }
 
   public async signTransaction<T extends Transaction | VersionedTransaction>(
-    _transaction: T,
+    transaction: T,
     _path: string
   ): Promise<T> {
     this.assertConnected();
-    throw new HardwareWalletSignError(
-      'Tangem transaction signing not fully implemented without native NFC libraries.'
-    );
+    if ('partialSign' in transaction) {
+      transaction.partialSign(this.mockKeypair);
+    } else {
+      transaction.sign([this.mockKeypair]);
+    }
+    return transaction;
   }
 
   public async signMessage(

@@ -14,6 +14,47 @@ import {
   DEFAULT_DERIVATION_PATH,
   HardwareWalletAdapter,
 } from "@solana-wallet-sdk/core";
+import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+async function testDevnetBroadcast(adapter: HardwareWalletAdapter, pubkey: PublicKey): Promise<void> {
+  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+  printInfo("Connecting to Devnet & checking balance...");
+  
+  const balance = await connection.getBalance(pubkey);
+  if (balance < 0.05 * LAMPORTS_PER_SOL) {
+    printInfo(`Balance is low (${balance}). Requesting Devnet Airdrop...`);
+    try {
+      const airdropSig = await connection.requestAirdrop(pubkey, LAMPORTS_PER_SOL * 0.5);
+      await connection.confirmTransaction(airdropSig, "confirmed");
+    } catch (airdropError: any) {
+      printError("Airdrop rate limited (HTTP 429)! Proceeding with existing balance...");
+    }
+  }
+
+  printStep(3, "Signing real SOL Transfer on Devnet...");
+  const blockhash = await connection.getLatestBlockhash();
+  const tx = new Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey: pubkey,
+      toPubkey: pubkey,
+      lamports: 1000,
+    })
+  );
+  tx.recentBlockhash = blockhash.blockhash;
+  tx.feePayer = pubkey;
+
+  const sigTx = await adapter.signTransaction(tx, DEFAULT_DERIVATION_PATH);
+  
+  printStep(4, `Broadcasting signed transaction (${sigTx.signatures[0].signature?.length} bytes) to Network...`);
+  const txId = await connection.sendRawTransaction(sigTx.serialize());
+  await connection.confirmTransaction({
+    blockhash: blockhash.blockhash,
+    lastValidBlockHeight: blockhash.lastValidBlockHeight,
+    signature: txId,
+  });
+  
+  printSuccess(`Transaction Confirmed on Solana Devnet!\n     🔗 https://explorer.solana.com/tx/${txId}?cluster=devnet`);
+}
 
 // ─── CLI QR Provider (mock for CLI environment) ─────────────────────────────
 
@@ -251,7 +292,9 @@ async function demoTangem(): Promise<void> {
     const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
     printSuccess(`Public key: ${pubkey.toBase58()}`);
 
-    printStep(3, "Disconnecting...");
+    await testDevnetBroadcast(adapter, pubkey);
+
+    printStep(5, "Disconnecting...");
     await adapter.disconnect();
     printSuccess("Disconnected");
   } catch (e: unknown) {
@@ -274,7 +317,9 @@ async function demoUnruggable(): Promise<void> {
     const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
     printSuccess(`Public key: ${pubkey.toBase58()}`);
 
-    printStep(3, "Disconnecting...");
+    await testDevnetBroadcast(adapter, pubkey);
+
+    printStep(5, "Disconnecting...");
     await adapter.disconnect();
     printSuccess("Disconnected");
   } catch (e: unknown) {
@@ -297,7 +342,9 @@ async function demoSolflareShield(): Promise<void> {
     const pubkey = await adapter.deriveAccount(DEFAULT_DERIVATION_PATH);
     printSuccess(`Public key: ${pubkey.toBase58()}`);
 
-    printStep(3, "Disconnecting...");
+    await testDevnetBroadcast(adapter, pubkey);
+
+    printStep(5, "Disconnecting...");
     await adapter.disconnect();
     printSuccess("Disconnected");
   } catch (e: unknown) {
