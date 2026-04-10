@@ -4,15 +4,20 @@ import {
   HardwareWalletConnectionError,
   HardwareWalletSignError,
   HardwareWalletError,
-} from '@solana-wallet-sdk/core';
-import { PublicKey, Transaction, VersionedTransaction, Keypair } from '@solana/web3.js';
+} from "@solana-wallet-sdk/core";
+import {
+  PublicKey,
+  Transaction,
+  VersionedTransaction,
+  Keypair,
+} from "@solana/web3.js";
 
 export interface TangemAdapterConfig {
   scanOnConnect?: boolean;
 }
 
 export class TangemAdapter implements HardwareWalletAdapter {
-  public readonly name = 'Tangem';
+  public readonly name = "Tangem";
   public readonly transportMethods = [TransportMethod.NFC] as const;
   private connected = false;
   private pubkey: PublicKey | null = null;
@@ -26,14 +31,14 @@ export class TangemAdapter implements HardwareWalletAdapter {
   public async connect(method: TransportMethod): Promise<void> {
     if (method !== TransportMethod.NFC) {
       throw new HardwareWalletConnectionError(
-        `Transport method "${method}" is not supported by Tangem. Supported: NFC`
+        `Transport method "${method}" is not supported by Tangem. Supported: NFC`,
       );
     }
-    
+
     // Simulating physical NFC scan session initialization
     this.connected = true;
     if (this.config.scanOnConnect) {
-       this.pubkey = this.mockKeypair.publicKey;
+      this.pubkey = this.mockKeypair.publicKey;
     }
   }
 
@@ -55,10 +60,10 @@ export class TangemAdapter implements HardwareWalletAdapter {
 
   public async signTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
-    _path: string
+    _path: string,
   ): Promise<T> {
     this.assertConnected();
-    if ('partialSign' in transaction) {
+    if ("partialSign" in transaction) {
       transaction.partialSign(this.mockKeypair);
     } else {
       transaction.sign([this.mockKeypair]);
@@ -68,18 +73,18 @@ export class TangemAdapter implements HardwareWalletAdapter {
 
   public async signMessage(
     _message: Uint8Array,
-    _path: string
+    _path: string,
   ): Promise<Uint8Array> {
     this.assertConnected();
     throw new HardwareWalletSignError(
-      'Tangem message signing not fully implemented without native NFC libraries.'
+      "Tangem message signing not fully implemented without native NFC libraries.",
     );
   }
 
   private assertConnected(): void {
     if (!this.connected) {
       throw new HardwareWalletConnectionError(
-        'Not connected to Tangem. Call connect() first.'
+        "Not connected to Tangem. Call connect() first.",
       );
     }
   }

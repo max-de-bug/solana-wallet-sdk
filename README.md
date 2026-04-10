@@ -4,15 +4,15 @@ An open-source, modular adapter system that lets React Native Solana dApps conne
 
 ## 🌟 Supported Hardware Wallets
 
-| Wallet               | Transport Methods  | Connection Type          |
-| -------------------- | ------------------ | ------------------------ |
-| **Ledger**           | USB, Bluetooth     | Direct transport         |
-| **Trezor**           | USB                | Trezor Connect bridge    |
-| **Keystone**         | QR Code            | Air-gapped (UR protocol) |
-| **SafePal**          | QR Code, Bluetooth | QR bridge / BLE          |
-| **Tangem**           | NFC                | Direct NFC transport     |
-| **Unruggable**       | NFC, Bluetooth     | Mobile app proxy / NFC   |
-| **Solflare Shield**  | USB, Bluetooth     | Direct connection        |
+| Wallet              | Transport Methods  | Connection Type          |
+| ------------------- | ------------------ | ------------------------ |
+| **Ledger**          | USB, Bluetooth     | Direct transport         |
+| **Trezor**          | USB                | Trezor Connect bridge    |
+| **Keystone**        | QR Code            | Air-gapped (UR protocol) |
+| **SafePal**         | QR Code, Bluetooth | QR bridge / BLE          |
+| **Tangem**          | NFC                | Direct NFC transport     |
+| **Unruggable**      | NFC, Bluetooth     | Mobile app proxy / NFC   |
+| **Solflare Shield** | USB, Bluetooth     | Direct connection        |
 
 ## 🏗 Architecture Overview
 
@@ -262,10 +262,12 @@ new SafePalAdapter(config: {
 - At least one transport (QR or BLE) must be provided in the constructor config.
 
 ### Tangem & Unruggable (NFC)
+
 - Both wallets rely on physical NFC scans. For React Native, ensure you install and configure a library like `react-native-nfc-manager`.
 - The Solana iOS capability `NFCReaderUsageDescription` must be provided in `Info.plist`.
 
 ### Solflare Shield
+
 - Requires USB-C or Bluetooth configuration similar to Ledger. Ensure standard Bluetooth/USB physical permissions are requested before establishing connection.
 
 ## 🛠 Troubleshooting FAQ

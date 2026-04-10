@@ -14,20 +14,37 @@ import {
   DEFAULT_DERIVATION_PATH,
   HardwareWalletAdapter,
 } from "@solana-wallet-sdk/core";
-import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  Connection,
+  SystemProgram,
+  Transaction,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 
-async function testDevnetBroadcast(adapter: HardwareWalletAdapter, pubkey: PublicKey): Promise<void> {
-  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+async function testDevnetBroadcast(
+  adapter: HardwareWalletAdapter,
+  pubkey: PublicKey,
+): Promise<void> {
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed",
+  );
   printInfo("Connecting to Devnet & checking balance...");
-  
+
   const balance = await connection.getBalance(pubkey);
   if (balance < 0.05 * LAMPORTS_PER_SOL) {
     printInfo(`Balance is low (${balance}). Requesting Devnet Airdrop...`);
     try {
-      const airdropSig = await connection.requestAirdrop(pubkey, LAMPORTS_PER_SOL * 0.5);
+      const airdropSig = await connection.requestAirdrop(
+        pubkey,
+        LAMPORTS_PER_SOL * 0.5,
+      );
       await connection.confirmTransaction(airdropSig, "confirmed");
     } catch (airdropError: any) {
-      printError("Airdrop rate limited (HTTP 429)! Proceeding with existing balance...");
+      printError(
+        "Airdrop rate limited (HTTP 429)! Proceeding with existing balance...",
+      );
     }
   }
 
@@ -38,22 +55,27 @@ async function testDevnetBroadcast(adapter: HardwareWalletAdapter, pubkey: Publi
       fromPubkey: pubkey,
       toPubkey: pubkey,
       lamports: 1000,
-    })
+    }),
   );
   tx.recentBlockhash = blockhash.blockhash;
   tx.feePayer = pubkey;
 
   const sigTx = await adapter.signTransaction(tx, DEFAULT_DERIVATION_PATH);
-  
-  printStep(4, `Broadcasting signed transaction (${sigTx.signatures[0].signature?.length} bytes) to Network...`);
+
+  printStep(
+    4,
+    `Broadcasting signed transaction (${sigTx.signatures[0].signature?.length} bytes) to Network...`,
+  );
   const txId = await connection.sendRawTransaction(sigTx.serialize());
   await connection.confirmTransaction({
     blockhash: blockhash.blockhash,
     lastValidBlockHeight: blockhash.lastValidBlockHeight,
     signature: txId,
   });
-  
-  printSuccess(`Transaction Confirmed on Solana Devnet!\n     🔗 https://explorer.solana.com/tx/${txId}?cluster=devnet`);
+
+  printSuccess(
+    `Transaction Confirmed on Solana Devnet!\n     🔗 https://explorer.solana.com/tx/${txId}?cluster=devnet`,
+  );
 }
 
 // ─── CLI QR Provider (mock for CLI environment) ─────────────────────────────
@@ -382,7 +404,9 @@ async function main(): Promise<void> {
   } else {
     // Run all demos
     console.log("Usage: npm start -- <wallet>");
-    console.log("  Wallets: ledger, trezor, keystone, safepal, tangem, unruggable, solflare-shield");
+    console.log(
+      "  Wallets: ledger, trezor, keystone, safepal, tangem, unruggable, solflare-shield",
+    );
     console.log("  Omit wallet name to run all demos.\n");
 
     await demoLedger();

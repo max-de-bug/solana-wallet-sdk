@@ -24,10 +24,20 @@ import { UnruggableAdapter } from "@solana-wallet-sdk/unruggable-adapter";
 import { SolflareShieldAdapter } from "@solana-wallet-sdk/solflare-shield-adapter";
 import { KeystoneAdapter } from "@solana-wallet-sdk/keystone-adapter";
 import { SafePalAdapter } from "@solana-wallet-sdk/safepal-adapter";
-import { Transaction, SystemProgram, PublicKey, Connection, Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  Transaction,
+  SystemProgram,
+  PublicKey,
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 
 // Enable LayoutAnimation on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -40,19 +50,23 @@ class MockLedgerAdapter implements HardwareWalletAdapter {
   protected keypair = Keypair.fromSeed(new Uint8Array(32).fill(7));
 
   async connect() {
-    await new Promise(r => setTimeout(r, 1500)); // Simulate BT negotiation delay
+    await new Promise((r) => setTimeout(r, 1500)); // Simulate BT negotiation delay
     this.connected = true;
   }
-  async disconnect() { this.connected = false; }
-  async deriveAccount() { return this.keypair.publicKey; }
-  async signMessage() { 
-    await new Promise(r => setTimeout(r, 1000));
-    return new Uint8Array(64).fill(1); 
+  async disconnect() {
+    this.connected = false;
   }
-  async signTransaction(tx: any) { 
-    await new Promise(r => setTimeout(r, 1500));
+  async deriveAccount() {
+    return this.keypair.publicKey;
+  }
+  async signMessage() {
+    await new Promise((r) => setTimeout(r, 1000));
+    return new Uint8Array(64).fill(1);
+  }
+  async signTransaction(tx: any) {
+    await new Promise((r) => setTimeout(r, 1500));
     tx.partialSign(this.keypair);
-    return tx; 
+    return tx;
   }
 }
 
@@ -63,36 +77,44 @@ class MockTrezorAdapter implements HardwareWalletAdapter {
   protected keypair = Keypair.fromSeed(new Uint8Array(32).fill(9));
 
   async connect() {
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1500));
     this.connected = true;
   }
-  async disconnect() { this.connected = false; }
-  async deriveAccount() { return this.keypair.publicKey; }
-  async signMessage() { 
-    await new Promise(r => setTimeout(r, 1000));
-    return new Uint8Array(64).fill(1); 
+  async disconnect() {
+    this.connected = false;
   }
-  async signTransaction(tx: any) { 
-    await new Promise(r => setTimeout(r, 1500));
+  async deriveAccount() {
+    return this.keypair.publicKey;
+  }
+  async signMessage() {
+    await new Promise((r) => setTimeout(r, 1000));
+    return new Uint8Array(64).fill(1);
+  }
+  async signTransaction(tx: any) {
+    await new Promise((r) => setTimeout(r, 1500));
     tx.partialSign(this.keypair);
-    return tx; 
+    return tx;
   }
 }
 
 // ─── Main App ───────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { qrProvider, qrData, isScanning, onQRScanned, onQRDisplayDone } = useQRInteraction();
+  const { qrProvider, qrData, isScanning, onQRScanned, onQRDisplayDone } =
+    useQRInteraction();
 
-  const adapters = useMemo(() => [
-    new MockLedgerAdapter(),
-    new MockTrezorAdapter(),
-    new KeystoneAdapter(qrProvider),
-    new SafePalAdapter({ qrProvider }),
-    new TangemAdapter({ scanOnConnect: true }),
-    new UnruggableAdapter(),
-    new SolflareShieldAdapter(),
-  ], [qrProvider]);
+  const adapters = useMemo(
+    () => [
+      new MockLedgerAdapter(),
+      new MockTrezorAdapter(),
+      new KeystoneAdapter(qrProvider),
+      new SafePalAdapter({ qrProvider }),
+      new TangemAdapter({ scanOnConnect: true }),
+      new UnruggableAdapter(),
+      new SolflareShieldAdapter(),
+    ],
+    [qrProvider],
+  );
 
   const {
     activeAdapter,
@@ -137,7 +159,9 @@ export default function App() {
     try {
       const msg = new TextEncoder().encode(messageText);
       const sig = await signMessage(msg);
-      setLastSignature(Buffer.from(sig).toString("hex").substring(0, 32) + "...");
+      setLastSignature(
+        Buffer.from(sig).toString("hex").substring(0, 32) + "...",
+      );
       safeAnimate();
     } catch (e) {}
   };
@@ -145,18 +169,26 @@ export default function App() {
   const handleSignTransaction = async () => {
     if (!publicKey) return;
     try {
-      const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-      
+      const connection = new Connection(
+        "https://api.devnet.solana.com",
+        "confirmed",
+      );
+
       // Request Airdrop if balance is empty (to test actually sending standard network TXs)
       const bal = await connection.getBalance(publicKey);
       if (bal < LAMPORTS_PER_SOL * 0.05) {
         setLastSignature("Requesting Airdrop (please wait)...");
         try {
           // Request smaller amount to avoid 429 Devnet Rate Limits
-          const airdropSig = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL * 0.5);
+          const airdropSig = await connection.requestAirdrop(
+            publicKey,
+            LAMPORTS_PER_SOL * 0.5,
+          );
           await connection.confirmTransaction(airdropSig, "confirmed");
         } catch (airdropError: any) {
-          console.warn("Airdrop rate limited, attempting to proceed with existing balance.");
+          console.warn(
+            "Airdrop rate limited, attempting to proceed with existing balance.",
+          );
         }
       }
 
@@ -167,14 +199,14 @@ export default function App() {
           fromPubkey: publicKey,
           toPubkey: publicKey,
           lamports: 1000,
-        })
+        }),
       );
       tx.recentBlockhash = blockhash.blockhash;
       tx.feePayer = publicKey;
-      
+
       const sigTx = await signTransaction(tx);
       setLastSignature("Deploying to devnet...");
-      
+
       const txId = await connection.sendRawTransaction(sigTx.serialize());
       await connection.confirmTransaction({
         blockhash: blockhash.blockhash,
@@ -199,7 +231,10 @@ export default function App() {
           <View style={styles.qrPlaceholder}>
             <Text style={styles.qrText}>{qrData.substring(0, 80)}...</Text>
           </View>
-          <TouchableOpacity style={styles.primaryButton} onPress={onQRDisplayDone}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={onQRDisplayDone}
+          >
             <Text style={styles.buttonText}>Acknowledge</Text>
           </TouchableOpacity>
         </View>
@@ -247,7 +282,10 @@ export default function App() {
               keyboardType="numeric"
               placeholderTextColor="#666"
             />
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => deriveAccount(`m/44'/501'/${derivationIndex}'/0'`)}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => deriveAccount(`m/44'/501'/${derivationIndex}'/0'`)}
+            >
               <Text style={styles.buttonTextSmall}>Derive</Text>
             </TouchableOpacity>
           </View>
@@ -262,12 +300,31 @@ export default function App() {
             placeholderTextColor="#666"
           />
           <View style={styles.row}>
-             <TouchableOpacity style={[styles.primaryButton, {flex: 1}]} onPress={handleSignMessage} disabled={isSigning}>
-                {isSigning ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonTextSmall}>Sign Message</Text>}
-             </TouchableOpacity>
-             <TouchableOpacity style={[styles.primaryButton, {flex: 1, backgroundColor: '#00C2A8'}]} onPress={handleSignTransaction} disabled={isSigning}>
-                {isSigning ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonTextSmall}>Sign SOL Tx</Text>}
-             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.primaryButton, { flex: 1 }]}
+              onPress={handleSignMessage}
+              disabled={isSigning}
+            >
+              {isSigning ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonTextSmall}>Sign Message</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.primaryButton,
+                { flex: 1, backgroundColor: "#00C2A8" },
+              ]}
+              onPress={handleSignTransaction}
+              disabled={isSigning}
+            >
+              {isSigning ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonTextSmall}>Sign SOL Tx</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -278,7 +335,10 @@ export default function App() {
           </View>
         )}
 
-        <TouchableOpacity style={styles.dangerButton} onPress={handleDisconnect}>
+        <TouchableOpacity
+          style={styles.dangerButton}
+          onPress={handleDisconnect}
+        >
           <Text style={styles.buttonText}>Disconnect Wallet</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -293,39 +353,64 @@ export default function App() {
       {error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{error.message}</Text>
-          <TouchableOpacity onPress={clearError}><Text style={styles.errorClose}>×</Text></TouchableOpacity>
+          <TouchableOpacity onPress={clearError}>
+            <Text style={styles.errorClose}>×</Text>
+          </TouchableOpacity>
         </View>
       )}
 
       {isConnecting && (
         <View style={styles.loaderArea}>
-          <ActivityIndicator color="#9945FF" size="large"/>
-          <Text style={styles.loaderText}>Establishing Secure Connection...</Text>
+          <ActivityIndicator color="#9945FF" size="large" />
+          <Text style={styles.loaderText}>
+            Establishing Secure Connection...
+          </Text>
         </View>
       )}
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, paddingTop: 10 }}>
-        {capabilities.map(cap => (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40, paddingTop: 10 }}
+      >
+        {capabilities.map((cap) => (
           <View key={cap.name} style={styles.walletTile}>
             <Text style={styles.walletName}>{cap.name}</Text>
             <View style={styles.transportStrip}>
               {cap.supportsUSB && (
-                <TouchableOpacity style={styles.pill} onPress={() => handleConnect(cap.name, TransportMethod.USB)} disabled={isConnecting}>
+                <TouchableOpacity
+                  style={styles.pill}
+                  onPress={() => handleConnect(cap.name, TransportMethod.USB)}
+                  disabled={isConnecting}
+                >
                   <Text style={styles.pillText}>USB</Text>
                 </TouchableOpacity>
               )}
               {cap.supportsBluetooth && (
-                <TouchableOpacity style={styles.pill} onPress={() => handleConnect(cap.name, TransportMethod.BLUETOOTH)} disabled={isConnecting}>
+                <TouchableOpacity
+                  style={styles.pill}
+                  onPress={() =>
+                    handleConnect(cap.name, TransportMethod.BLUETOOTH)
+                  }
+                  disabled={isConnecting}
+                >
                   <Text style={styles.pillText}>BLE</Text>
                 </TouchableOpacity>
               )}
               {cap.supportsQR && (
-                <TouchableOpacity style={styles.pill} onPress={() => handleConnect(cap.name, TransportMethod.QR)} disabled={isConnecting}>
+                <TouchableOpacity
+                  style={styles.pill}
+                  onPress={() => handleConnect(cap.name, TransportMethod.QR)}
+                  disabled={isConnecting}
+                >
                   <Text style={styles.pillText}>QR Scan</Text>
                 </TouchableOpacity>
               )}
               {cap.supportsNFC && (
-                <TouchableOpacity style={styles.pill} onPress={() => handleConnect(cap.name, TransportMethod.NFC)} disabled={isConnecting}>
+                <TouchableOpacity
+                  style={styles.pill}
+                  onPress={() => handleConnect(cap.name, TransportMethod.NFC)}
+                  disabled={isConnecting}
+                >
                   <Text style={styles.pillText}>NFC</Text>
                 </TouchableOpacity>
               )}
@@ -559,5 +644,5 @@ const styles = StyleSheet.create({
     color: "#666",
     fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
     textAlign: "center",
-  }
+  },
 });
