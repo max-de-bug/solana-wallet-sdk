@@ -24,5 +24,21 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-de-bug/solana-wallet-sdk.git",
+    "directory": "packages/tangem-adapter"
+  },
+  "keywords": [
+    "solana",
+    "tangem",
+    "hardware-wallet",
+    "nfc",
+    "adapter"
+  ],
+  "homepage": "https://github.com/max-de-bug/solana-wallet-sdk/tree/main/packages/tangem-adapter#readme",
+  "bugs": {
+    "url": "https://github.com/max-de-bug/solana-wallet-sdk/issues"
   }
 }

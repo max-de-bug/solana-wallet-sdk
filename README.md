@@ -315,19 +315,22 @@ pnpm test -- --coverage # With coverage report
 ```
 solana-wallet-sdk/
 ├── packages/
-│   ├── core/                 # Types, interfaces, errors
-│   ├── ledger-adapter/       # Ledger USB/BLE
-│   ├── trezor-adapter/       # Trezor USB
-│   ├── keystone-adapter/     # Keystone QR (air-gapped)
-│   ├── safepal-adapter/      # SafePal QR/BLE
-│   └── react-native/         # React hooks
+│   ├── core/                       # Types, interfaces, errors
+│   ├── ledger-adapter/             # Ledger USB/BLE
+│   ├── trezor-adapter/             # Trezor USB
+│   ├── keystone-adapter/           # Keystone QR (air-gapped)
+│   ├── safepal-adapter/            # SafePal QR/BLE
+│   ├── tangem-adapter/             # Tangem NFC
+│   ├── unruggable-adapter/         # Unruggable NFC/BLE
+│   ├── solflare-shield-adapter/    # Solflare Shield USB/BLE
+│   └── react-native/              # React hooks
 ├── apps/
-│   ├── demo/                 # React Native demo app
-│   └── cli/                  # Node.js CLI demo
-├── vitest.config.ts          # Test configuration
-├── tsconfig.base.json        # Shared TypeScript config
-├── pnpm-workspace.yaml       # Workspace packages
-└── turbo.json                # Build pipeline
+│   ├── demo/                       # React Native demo app
+│   └── cli/                        # Node.js CLI demo
+├── vitest.config.ts                # Test configuration
+├── tsconfig.base.json              # Shared TypeScript config
+├── pnpm-workspace.yaml             # Workspace packages
+└── turbo.json                      # Build pipeline
 ```
 
 ## 📄 License

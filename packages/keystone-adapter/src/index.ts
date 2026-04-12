@@ -8,7 +8,7 @@ import {
 } from "@solana-wallet-sdk/core";
 import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { KeystoneSDK, UR } from "@keystonehq/keystone-sdk";
-import { UREncoder, URDecoder } from "@ngraveio/bc-ur";
+import { UREncoder } from "@ngraveio/bc-ur";
 
 // ─── Keystone Adapter ───────────────────────────────────────────────────────
 
@@ -54,11 +54,16 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
       );
 
       // Cache all discovered Solana accounts
-      for (const account of accounts.keys) {
-        const key = account.chain === "SOL" ? account.path : undefined;
-        if (key) {
-          this.cachedAccounts.set(key, new PublicKey(account.publicKey));
+      if (accounts && Array.isArray(accounts.keys)) {
+        for (const account of accounts.keys) {
+          if (!account) continue;
+          const key = account.chain === "SOL" ? account.path : undefined;
+          if (key && account.publicKey) {
+            this.cachedAccounts.set(key, new PublicKey(account.publicKey));
+          }
         }
+      } else {
+        throw new Error("Keystone response contained no valid account keys.");
       }
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
@@ -89,6 +94,7 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
         xfp: "",
         address: "",
         origin: "solana-wallet-sdk",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       const urString = encodeUR(request);
@@ -136,6 +142,7 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
         xfp: "",
         address: "",
         origin: "solana-wallet-sdk",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       const urString = encodeUR(request);
@@ -147,7 +154,7 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
       );
 
       const pubkey = await this.deriveAccount(path);
-      const sigData: string | Buffer = signature.signature as any;
+      const sigData = signature.signature as unknown as string | Buffer;
       const sigBuffer =
         typeof sigData === "string"
           ? Buffer.from(sigData, "hex")
@@ -176,6 +183,7 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
         xfp: "",
         address: "",
         origin: "solana-wallet-sdk",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       const urString = encodeUR(request);
@@ -185,7 +193,7 @@ export class KeystoneAdapter implements HardwareWalletAdapter {
       const signature = this.sdk.sol.parseSignature(
         new UR(Buffer.from(responseUR, "hex"), "sol-signature"),
       );
-      const sigData: string | Buffer = signature.signature as any;
+      const sigData = signature.signature as unknown as string | Buffer;
       const sigBuffer =
         typeof sigData === "string"
           ? Buffer.from(sigData, "hex")

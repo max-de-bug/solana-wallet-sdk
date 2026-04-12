@@ -24,5 +24,22 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-de-bug/solana-wallet-sdk.git",
+    "directory": "packages/solflare-shield-adapter"
+  },
+  "keywords": [
+    "solana",
+    "solflare-shield",
+    "hardware-wallet",
+    "usb",
+    "bluetooth",
+    "adapter"
+  ],
+  "homepage": "https://github.com/max-de-bug/solana-wallet-sdk/tree/main/packages/solflare-shield-adapter#readme",
+  "bugs": {
+    "url": "https://github.com/max-de-bug/solana-wallet-sdk/issues"
   }
 }

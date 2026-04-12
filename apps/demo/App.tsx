@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,9 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
-  Animated,
+  Alert,
 } from "react-native";
+import Clipboard from "@react-native-clipboard/clipboard";
 import {
   useHardwareWallet,
   useQRInteraction,
@@ -41,62 +42,6 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// ─── Hardware Simulation for Demo Purposes ──────────────────────────────────
-// To allow local emulator testing without crashing, we mock the USB-bound adapters.
-class MockLedgerAdapter implements HardwareWalletAdapter {
-  name = "Ledger Nano X";
-  transportMethods = [TransportMethod.BLUETOOTH, TransportMethod.USB] as const;
-  private connected = false;
-  protected keypair = Keypair.fromSeed(new Uint8Array(32).fill(7));
-
-  async connect() {
-    await new Promise((r) => setTimeout(r, 1500)); // Simulate BT negotiation delay
-    this.connected = true;
-  }
-  async disconnect() {
-    this.connected = false;
-  }
-  async deriveAccount() {
-    return this.keypair.publicKey;
-  }
-  async signMessage() {
-    await new Promise((r) => setTimeout(r, 1000));
-    return new Uint8Array(64).fill(1);
-  }
-  async signTransaction(tx: any) {
-    await new Promise((r) => setTimeout(r, 1500));
-    tx.partialSign(this.keypair);
-    return tx;
-  }
-}
-
-class MockTrezorAdapter implements HardwareWalletAdapter {
-  name = "Trezor Model T";
-  transportMethods = [TransportMethod.USB] as const;
-  private connected = false;
-  protected keypair = Keypair.fromSeed(new Uint8Array(32).fill(9));
-
-  async connect() {
-    await new Promise((r) => setTimeout(r, 1500));
-    this.connected = true;
-  }
-  async disconnect() {
-    this.connected = false;
-  }
-  async deriveAccount() {
-    return this.keypair.publicKey;
-  }
-  async signMessage() {
-    await new Promise((r) => setTimeout(r, 1000));
-    return new Uint8Array(64).fill(1);
-  }
-  async signTransaction(tx: any) {
-    await new Promise((r) => setTimeout(r, 1500));
-    tx.partialSign(this.keypair);
-    return tx;
-  }
-}
-
 // ─── Main App ───────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -105,11 +50,9 @@ export default function App() {
 
   const adapters = useMemo(
     () => [
-      new MockLedgerAdapter(),
-      new MockTrezorAdapter(),
       new KeystoneAdapter(qrProvider),
       new SafePalAdapter({ qrProvider }),
-      new TangemAdapter({ scanOnConnect: true }),
+      new TangemAdapter({ scanOnConnect: false }),
       new UnruggableAdapter(),
       new SolflareShieldAdapter(),
     ],
@@ -160,10 +103,14 @@ export default function App() {
       const msg = new TextEncoder().encode(messageText);
       const sig = await signMessage(msg);
       setLastSignature(
-        Buffer.from(sig).toString("hex").substring(0, 32) + "...",
+        Buffer.from(sig).toString("hex"),
       );
       safeAnimate();
-    } catch (e) {}
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("Sign Message Error:", msg);
+      Alert.alert("Sign Message Failed", msg);
+    }
   };
 
   const handleSignTransaction = async () => {
@@ -174,25 +121,21 @@ export default function App() {
         "confirmed",
       );
 
-      // Request Airdrop if balance is empty (to test actually sending standard network TXs)
-      const bal = await connection.getBalance(publicKey);
-      if (bal < LAMPORTS_PER_SOL * 0.05) {
-        setLastSignature("Requesting Airdrop (please wait)...");
+      setLastSignature("Checking balance & airdropping...");
+      const balance = await connection.getBalance(publicKey);
+      if (balance < 0.05 * LAMPORTS_PER_SOL) {
         try {
-          // Request smaller amount to avoid 429 Devnet Rate Limits
           const airdropSig = await connection.requestAirdrop(
             publicKey,
-            LAMPORTS_PER_SOL * 0.5,
+            0.1 * LAMPORTS_PER_SOL,
           );
           await connection.confirmTransaction(airdropSig, "confirmed");
-        } catch (airdropError: any) {
-          console.warn(
-            "Airdrop rate limited, attempting to proceed with existing balance.",
-          );
+        } catch (e) {
+          console.warn("Airdrop failed:", e);
         }
       }
 
-      setLastSignature("Generating & Signing Transcation...");
+      setLastSignature("Generating & Signing Transaction...");
       const blockhash = await connection.getLatestBlockhash();
       const tx = new Transaction().add(
         SystemProgram.transfer({
@@ -216,8 +159,10 @@ export default function App() {
 
       setLastSignature(`https://explorer.solana.com/tx/${txId}?cluster=devnet`);
       safeAnimate();
-    } catch (e: any) {
-      setLastSignature(`Error: ${e.message}`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("Transaction Error:", msg);
+      setLastSignature(`Error: ${msg}`);
     }
   };
 
@@ -330,8 +275,19 @@ export default function App() {
 
         {lastSignature && (
           <View style={styles.successCard}>
-            <Text style={styles.successTitle}>✓ Verified Signature</Text>
-            <Text style={styles.mono}>{lastSignature}</Text>
+            <View style={styles.row}>
+              <Text style={[styles.successTitle, { flex: 1 }]}>
+                ✓ Verified Signature
+              </Text>
+              <TouchableOpacity
+                onPress={() => Clipboard.setString(lastSignature)}
+              >
+                <Text style={styles.copyButtonText}>Copy</Text>
+              </TouchableOpacity>
+            </View>
+            <Text selectable={true} style={styles.mono}>
+              {lastSignature}
+            </Text>
           </View>
         )}
 
@@ -369,8 +325,9 @@ export default function App() {
       )}
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40, paddingTop: 10 }}
+        showsVerticalScrollIndicator={true}
+        contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
+        style={{ flex: 1 }}
       >
         {capabilities.map((cap) => (
           <View key={cap.name} style={styles.walletTile}>
@@ -644,5 +601,15 @@ const styles = StyleSheet.create({
     color: "#666",
     fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
     textAlign: "center",
+  },
+  copyButtonText: {
+    color: "#14F195",
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    backgroundColor: "rgba(20, 241, 149, 0.1)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
 });

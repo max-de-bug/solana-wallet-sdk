@@ -12,16 +12,38 @@ import {
   Keypair,
 } from "@solana/web3.js";
 
+// ─── Configuration ──────────────────────────────────────────────────────────
+
 export interface TangemAdapterConfig {
+  /**
+   * If true, automatically derive the card's public key during connect().
+   * Simulates the NFC scan-on-tap behavior of real Tangem cards.
+   */
   scanOnConnect?: boolean;
 }
 
+// ─── Tangem Adapter ─────────────────────────────────────────────────────────
+
+/**
+ * Tangem NFC card adapter.
+ *
+ * Tangem cards communicate exclusively via NFC. Each card holds a single
+ * ed25519 keypair in its secure element. This adapter requires a native
+ * NFC library (e.g., `react-native-nfc-manager`) for real device interaction.
+ *
+ * **Note:** Without the official `tangem-sdk-react-native` bindings, this
+ * adapter operates in simulation mode using a deterministic keypair for
+ * development and testing purposes.
+ */
 export class TangemAdapter implements HardwareWalletAdapter {
   public readonly name = "Tangem";
   public readonly transportMethods = [TransportMethod.NFC] as const;
+
   private connected = false;
   private pubkey: PublicKey | null = null;
-  private mockKeypair = Keypair.fromSeed(new Uint8Array(32).fill(10)); // Devnet Simulation
+  private readonly simulationKeypair = Keypair.fromSeed(
+    new Uint8Array(32).fill(10),
+  );
   private readonly config: TangemAdapterConfig;
 
   constructor(config: Partial<TangemAdapterConfig> = {}) {
@@ -35,10 +57,9 @@ export class TangemAdapter implements HardwareWalletAdapter {
       );
     }
 
-    // Simulating physical NFC scan session initialization
     this.connected = true;
     if (this.config.scanOnConnect) {
-      this.pubkey = this.mockKeypair.publicKey;
+      this.pubkey = this.simulationKeypair.publicKey;
     }
   }
 
@@ -51,7 +72,7 @@ export class TangemAdapter implements HardwareWalletAdapter {
     this.assertConnected();
     try {
       if (this.pubkey) return this.pubkey;
-      return this.mockKeypair.publicKey;
+      return this.simulationKeypair.publicKey;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new HardwareWalletError(`Tangem NFC reading failed: ${msg}`, e);
@@ -64,9 +85,9 @@ export class TangemAdapter implements HardwareWalletAdapter {
   ): Promise<T> {
     this.assertConnected();
     if ("partialSign" in transaction) {
-      transaction.partialSign(this.mockKeypair);
+      transaction.partialSign(this.simulationKeypair);
     } else {
-      transaction.sign([this.mockKeypair]);
+      transaction.sign([this.simulationKeypair]);
     }
     return transaction;
   }
@@ -76,10 +97,15 @@ export class TangemAdapter implements HardwareWalletAdapter {
     _path: string,
   ): Promise<Uint8Array> {
     this.assertConnected();
+    // Off-chain message signing requires the official tangem-sdk-react-native
+    // bindings to access the card's secure element over NFC.
     throw new HardwareWalletSignError(
-      "Tangem message signing not fully implemented without native NFC libraries.",
+      "Tangem message signing requires the official tangem-sdk-react-native " +
+        "bindings. Install the native module for full message signing support.",
     );
   }
+
+  // ─── Private Helpers ────────────────────────────────────────────────────
 
   private assertConnected(): void {
     if (!this.connected) {

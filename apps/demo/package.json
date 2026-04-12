@@ -9,15 +9,16 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
+    "@react-native-clipboard/clipboard": "^1.16.3",
     "@solana-wallet-sdk/core": "workspace:*",
-    "@solana-wallet-sdk/react-native": "workspace:*",
-    "@solana-wallet-sdk/ledger-adapter": "workspace:*",
-    "@solana-wallet-sdk/trezor-adapter": "workspace:*",
     "@solana-wallet-sdk/keystone-adapter": "workspace:*",
+    "@solana-wallet-sdk/ledger-adapter": "workspace:*",
+    "@solana-wallet-sdk/react-native": "workspace:*",
     "@solana-wallet-sdk/safepal-adapter": "workspace:*",
-    "@solana-wallet-sdk/tangem-adapter": "workspace:*",
-    "@solana-wallet-sdk/unruggable-adapter": "workspace:*",
     "@solana-wallet-sdk/solflare-shield-adapter": "workspace:*",
+    "@solana-wallet-sdk/tangem-adapter": "workspace:*",
+    "@solana-wallet-sdk/trezor-adapter": "workspace:*",
+    "@solana-wallet-sdk/unruggable-adapter": "workspace:*",
     "@solana/web3.js": "^1.89.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
@@ -32,7 +33,7 @@
     "text-encoding": "^0.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/react": "^18.2.0"
+    "@types/react": "^18.2.0",
+    "typescript": "^5.0.0"
   }
 }
